@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KUET WasteX - Smart Waste Collection System</title>
+  <link rel="icon" type="image/png" href="kuet-logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Leaflet (OpenStreetMap interactive map). Requires internet for tiles. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+  <!-- ============ LOGIN VIEW ============ -->
+  <section id="loginView" class="login-view">
+    <div class="login-inner">
+      <div class="login-hero">
+        <div class="hero-head">
+          <img class="kuet-logo hero-logo" src="kuet-logo.png" alt="KUET Logo"
+               onerror="this.onerror=null;this.src='kuet-logo.svg'">
+          <div>
+            <h1 class="hero-title">KUET WasteX</h1>
+            <p class="hero-sub">Smart Waste Collection System</p>
+          </div>
+        </div>
+        <ul class="hero-points">
+          <li><span></span> Real-time bin fill monitoring</li>
+          <li><span></span> Smart priority &amp; route planning</li>
+          <li><span></span> Dijkstra shortest path &amp; graph tools</li>
+          <li><span></span> Centralized campus analytics</li>
+        </ul>
+      </div>
+
+      <div class="login-card">
+        <div class="login-brand">
+          <img class="kuet-logo sm" src="kuet-logo.png" alt="KUET Logo"
+               onerror="this.onerror=null;this.src='kuet-logo.svg'">
+          <div>
+            <strong>KUET WasteX</strong>
+            <span>Khulna University of Engineering &amp; Technology</span>
+          </div>
+        </div>
+        <div class="role-tabs" id="roleTabs">
+          <button class="role-tab active" data-role="Admin">Admin</button>
+          <button class="role-tab" data-role="User">User</button>
+          <button class="role-tab" data-role="Driver">Driver</button>
+        </div>
+
+        <form id="loginForm" autocomplete="off" novalidate>
+          <label for="loginUser">Username</label>
+          <input type="text" id="loginUser" placeholder="Enter username" />
+          <label for="loginPass">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="loginPass" placeholder="Enter password" />
+            <button type="button" class="pw-toggle" data-target="loginPass" aria-label="Show password">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="form-error hidden" id="loginError"></div>
+          <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        </form>
+
+        <div class="signup-hint" id="signupHint">
+          New user? <button type="button" id="showSignup" class="link-btn">Create an account</button>
+        </div>
+
+        <form id="signupForm" class="hidden" autocomplete="off" novalidate>
+          <label for="suUser">Username</label>
+          <input type="text" id="suUser" placeholder="Choose a username" />
+          <label for="suPass">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="suPass" placeholder="Choose a password" />
+            <button type="button" class="pw-toggle" data-target="suPass" aria-label="Show password">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <label for="suName">Full Name</label>
+          <input type="text" id="suName" placeholder="Your full name" />
+          <div class="form-grid2">
+            <div>
+              <label for="suRoll">Student ID / Roll</label>
+              <input type="text" id="suRoll" placeholder="e.g. 2107001" />
+            </div>
+            <div>
+              <label for="suBatch">Batch</label>
+              <input type="text" id="suBatch" placeholder="e.g. 2K22" />
+            </div>
+            <div>
+              <label for="suDept">Department</label>
+              <select id="suDept">
+                <option value="">Select department</option>
+                <option>CSE</option><option>EEE</option><option>ECE</option>
+                <option>ME</option><option>CE</option><option>BME</option>
+                <option>MTE</option><option>CHE</option><option>IEM</option>
+                <option>LE</option><option>TE</option><option>URP</option>
+                <option>Architecture</option><option>BECM</option><option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="suYear">Year</label>
+              <select id="suYear">
+                <option value="">Select year</option>
+                <option value="1">1st Year</option><option value="2">2nd Year</option>
+                <option value="3">3rd Year</option><option value="4">4th Year</option>
+              </select>
+            </div>
+            <div>
+              <label for="suSemester">Semester</label>
+              <select id="suSemester">
+                <option value="">Select semester</option>
+                <option>1-1</option><option>1-2</option><option>2-1</option><option>2-2</option>
+                <option>3-1</option><option>3-2</option><option>4-1</option><option>4-2</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-error hidden" id="signupError"></div>
+          <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+          <div class="signup-hint">Already have an account? <button type="button" id="hideSignup" class="link-btn">Sign in</button></div>
+        </form>
+
+        <details class="demo-creds">
+          <summary>Demo accounts</summary>
+          <div class="demo-list">
+            <span>Admin &middot; <b>admin / admin123</b></span>
+            <span>Driver &middot; <b>driver1 / drive123</b></span>
+            <span>User &middot; <b>Mahi / 2407101</b></span>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ APP VIEW ============ -->
+  <section id="appView" class="app-view hidden">
+    <aside class="sidebar">
+      <img class="kuet-logo sidebar-logo" src="kuet-logo.png" alt="KUET Logo"
+           onerror="this.onerror=null;this.src='kuet-logo.svg'">
+      <div class="brand small">
+        <div><h1>KUET WasteX</h1><p id="sideRole">Portal</p></div>
+      </div>
+      <nav id="navList" class="nav-list"></nav>
+      <div class="sidebar-foot">
+        <div class="who">
+          <div class="avatar" id="userAvatar">?</div>
+          <div><strong id="userName">-</strong><span id="userRole">-</span></div>
+        </div>
+        <button class="btn btn-ghost btn-block" id="logoutBtn">Logout</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSub">Overview of the waste collection system</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="pill" id="liveClock"></span>
+          <button class="btn btn-ghost" id="refreshBtn">Refresh</button>
+        </div>
+      </header>
+      <div id="view" class="view"></div>
+    </main>
+  </section>
+
+  <div id="toasts" class="toasts"></div>
+  <div id="modalRoot"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "area": "KUET (Khulna University of Engineering & Technology) campus, Khulna, Bangladesh",
+  "bbox": {
+    "south": 22.8968,
+    "west": 89.495,
+    "north": 22.9052,
+    "east": 89.5075
+  },
+  "center": {
+    "lat": 22.9009132,
+    "lng": 89.5024705
+  },
+  "source": "OpenStreetMap via Overpass API",
+  "attribution": "© OpenStreetMap contributors, ODbL 1.0",
+  "license": "ODbL 1.0",
+  "query_endpoint": "Overpass API (mirror: maps.mail.ru/osm/tools/overpass) at build time",
+  "extracted_counts": {
+    "buildings": 1711,
+    "roads": 77
+  }
+}

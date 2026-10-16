@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="KUET logo placeholder">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#0e7490"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bbf7d0"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="96" fill="#0b1220" stroke="url(#ring)" stroke-width="4"/>
+  <circle cx="100" cy="100" r="80" fill="url(#g)" opacity="0.16"/>
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#22c55e" stroke-width="2" opacity="0.6"/>
+  <g fill="none" stroke="#e6edf7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+    <path d="M100 54 L138 74 L138 116 L100 136 L62 116 L62 74 Z"/>
+  </g>
+  <text x="100" y="106" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="800" fill="#eafff2" letter-spacing="1">KUET</text>
+  <text x="100" y="150" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="11" font-weight="600" fill="#9fd9c0">SMART CAMPUS</text>
+</svg>

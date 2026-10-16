@@ -1,0 +1,52 @@
+# ================= KUET WasteX =================
+# C++ console app (main.cpp + headers) with a Node web dashboard in webui/.
+# No npm: the dashboard runs on Node's built-in http/fs only.
+
+# ---------------- C++ build output ----------------
+KUETWasteX.exe
+*.exe
+*.o
+*.obj
+*.gch
+*.out
+a.out
+*.ilk
+*.pdb
+*.dll
+*.stackdump
+build/
+dist/
+
+# ---------------- Web dashboard ----------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.env
+.env.local
+
+# ---------------- Runtime state (recreated by the app) ----------------
+# Truck position written when a simulated position is set on the map.
+# The app falls back to the logical campus node when this file is absent.
+webui/mapdata/driver_position.json
+# Accounts created through "Create an account" on the login page.
+webui/user_profiles.json
+
+# ---------------- Editor / OS junk ----------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------- Local scratch ----------------
+*.tmp
+*.log
+
+# Kept on purpose (do not ignore):
+#   wastex_data.txt              demo dataset the app starts from
+#   webui/mapdata/*.json|geojson campus map data + initial manual_coords.json ({})
+#   WasteX_Report_Screenshots/   report figures
+#   *.bat, Makefile, *.pdf, *.docx, *.png, *.jpg, *.svg

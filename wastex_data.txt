@@ -1,0 +1,72 @@
+WASTEX_DATA_V1
+NEXTID|110
+LOCATION|Cafeteria
+BINCOUNT|5
+B01|Cafeteria|0.00|10.00
+B02|Academic Area|0.00|20.00
+B03|S.S.H|0.00|3.00
+B04|Main Gate|0.00|25.00
+B05|Administration|0.00|5.00
+USERCOUNT|9
+admin|admin123|Admin|System Administrator
+driver1|drive123|Driver|Rahim
+student1|pass123|User|Karim
+Mahi|2407101|User|Mahi Islam
+Ayesha|2407104|User|Ayesha Rahman
+Tuli|tuli123|User|Tuli Ahmed
+driver2|drive456|Driver|Sabbir Ahmed
+mahi|mahi|User|rahat mahi
+ayesha|123|User|ayesha yesmkn
+REQCOUNT|9
+R101|B03|S.S.H|HIGH|Completed|student1|driver1
+R102|B01|Cafeteria|MEDIUM|Completed|Mahi|
+R103|B05|Administration|MEDIUM|Cancelled|Mahi|
+R104|B01|Cafeteria|HIGH|Completed|student1|driver1
+R105|B01|Cafeteria|HIGH|Completed|mahi|driver1
+R106|B02|Academic Area|LOW|Completed|mahi|
+R107|B04|Main Gate|MEDIUM|Completed|ayesha|
+R108|B04|Main Gate|LOW|Completed|student1|
+R109|B01|Cafeteria|LOW|Pending|student1|
+HISTCOUNT|11
+B02|Academic Area|Collected via smart route
+B01|Cafeteria|Collected via smart route
+B04|Main Gate|Collected via smart route
+B04|Main Gate|Collected via smart route
+B05|Administration|Collected by driver Rahim
+B04|Main Gate|Collected via smart route
+B05|Administration|Collected via smart route
+B03|S.S.H|Collected via smart route
+B01|Cafeteria|Collected via smart route
+B01|Cafeteria|Collected by driver Rahim
+B02|Academic Area|Collected by driver Rahim
+ROADCOUNT|29
+Main Gate|Janata Bank|0.50
+Main Gate|K.A.H|0.20
+Janata Bank|Pocket Gate|0.05
+Janata Bank|Post Office|0.15
+Janata Bank|K.A.H|0.25
+Pocket Gate|Post Office|0.20
+Pocket Gate|Academic Area|0.40
+Pocket Gate|Guest House|0.40
+Pocket Gate|IT Park|0.35
+Post Office|Central Field|0.20
+Post Office|S.S.H|0.15
+Central Field|Academic Area|0.15
+Central Field|S.S.H|0.10
+Central Field|A.E.H|0.15
+Central Field|Cafeteria|0.20
+Academic Area|Administration|0.20
+Academic Area|A.E.H|0.20
+Academic Area|IT Park|0.30
+Administration|K.A.H|0.20
+Administration|R.H|0.25
+Administration|F.A.H|0.30
+Cafeteria|A.E.H|0.20
+S.S.H|A.E.H|0.05
+S.S.H|F.A.H|0.20
+A.E.H|F.A.H|0.15
+F.A.H|R.H|0.20
+K.A.H|R.H|0.15
+R.H|Guest House|0.25
+Guest House|IT Park|0.20
+QCOUNT|0
