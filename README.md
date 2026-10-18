@@ -294,7 +294,7 @@ KUET WasteX/
 
 | | |
 | --- | --- |
-| <img src="Rahat%20Hasan%20Mahi.png" width="140" alt="Rahat Hasan Mahi"> | <img src="Ayesha%20Yesmin%20Moumita.jpeg" width="140" alt="Ayesha Yesmin Moumita"> |
+| <img src="Rahat%20Hasan%20Mahi.png" width="140" alt="Rahat Hasan Mahi"> | <img src="webui/public/founder-ayesha-yesmin.jpg" width="140" alt="Ayesha Yesmin Moumita"> |
 | **Rahat Hasan Mahi** | **Ayesha Yesmin Moumita** |
 | Student ID: 2407101 | Student ID: 2407104 |
 | B.Sc. Engineering in Computer Science and Engineering | B.Sc. Engineering in Computer Science and Engineering |
