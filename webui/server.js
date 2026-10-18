@@ -73,6 +73,8 @@ const MIME = {
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
   ".gif": "image/gif",
+  ".xml": "application/xml; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
   ".bmp": "image/bmp",
   ".woff": "font/woff",
   ".woff2": "font/woff2",
