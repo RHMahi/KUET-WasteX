@@ -4,9 +4,9 @@
 
 # KUET WasteX
 
-**Smart campus waste management — a C++ data-structures core with a live web dashboard.**
+**Smart campus waste management: a hand-built C++ data-structures engine with a live web dashboard.**
 
-*Track every bin on campus, collect in priority order, and drive the shortest routes.*
+Track every bin on campus, collect in priority order, and drive the shortest routes.
 
 ![C++](https://img.shields.io/badge/C++-17-00599C?logo=cplusplus&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-Built--in_Serve-6DA55F?logo=nodedotjs&logoColor=white)
@@ -17,46 +17,59 @@
 ![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-Tiles-7EBC6F?logo=openstreetmap&logoColor=white)
 ![Windows](https://img.shields.io/badge/Platform-Windows-45B1E8?logo=windows&logoColor=white)
 
+[Overview](#overview) · [Features](#features) · [Quick start](#quick-start) · [Architecture](#architecture) · [Algorithms](#data-structures-and-algorithms) · [Screenshots](#screenshots) · [Team](#project-team)
+
 </div>
 
 ---
 
-## Table of Contents
+## Table of contents
 
 1. [Overview](#overview)
-2. [Key Features](#key-features)
-3. [System Architecture](#system-architecture)
-4. [Data Structures and Algorithms](#data-structures-and-algorithms)
-5. [Data File Format](#data-file-format)
-6. [Screenshots](#screenshots)
-7. [Tech Stack](#tech-stack)
-8. [Getting Started](#getting-started)
-9. [Repository Structure](#repository-structure)
-10. [Project Team](#project-team)
-11. [Future Improvements](#future-improvements)
-12. [License and Credits](#license-and-credits)
-13. [Notes and Limitations](#notes-and-limitations)
+2. [Features](#features)
+3. [Quick start](#quick-start)
+4. [Architecture](#architecture)
+5. [Data structures and algorithms](#data-structures-and-algorithms)
+6. [Data file format](#data-file-format)
+7. [Screenshots](#screenshots)
+8. [Tech stack](#tech-stack)
+9. [Repository structure](#repository-structure)
+10. [Project team](#project-team)
+11. [Roadmap](#roadmap)
+12. [License and credits](#license-and-credits)
+13. [Notes and limitations](#notes-and-limitations)
 
 ## Overview
 
-KUET WasteX is a solid-waste management system for a university campus, built as a coursework project around hand-implemented data structures and algorithms. It ships as two programs that share one plain-text database, `wastex_data.txt`:
+Overflowing bins, late pickups and wasted truck trips are everyday problems on a university campus. KUET WasteX is a coursework project that tackles them with a solid-waste management system for the KUET campus. Every core structure, from the linked list to the Dijkstra router, is written from scratch.
 
-- **A C++17 console application** — the core engine: bins, users, requests and a campus road graph managed entirely with data-structures written from scratch (linked list, stack, FIFO queue, max-heap priority queue, binary search tree, weighted graph with BFS/DFS, Dijkstra, merge sort and binary search).
-- **A Node.js web dashboard** — a role-based front end served by a dependency-free HTTP server (Node built-ins only), featuring live OpenStreetMap tracking of bins and the collection truck, a visual campus road network, and analytics screens.
+The system ships as two programs that share one plain-text database, `wastex_data.txt`:
 
-The system models 15 campus locations connected by 29 weighted road segments. Bin status is derived from two monitored values (fill level and fill rate per hour): `CRITICAL` at 90% or above, `HIGH` at 75%+, `MODERATE` at 50%+, otherwise `NORMAL`. Collection priority is computed as `fill × 0.6 + fill rate × 0.4`.
+- **A C++17 console application.** This is the core engine. It manages bins, users, collection requests and the campus road graph with a linked list, stack, FIFO queue, max-heap priority queue, binary search tree, weighted graph (BFS and DFS), Dijkstra, merge sort and binary search.
+- **A Node.js web dashboard.** A role-based front end served by a dependency-free HTTP server that uses Node built-ins only. It adds live OpenStreetMap tracking of bins and the collection truck, a visual campus road network, and analytics screens.
 
-## Key Features
+The model covers 15 campus locations joined by 29 weighted road segments. Each bin reports a fill level and a fill rate per hour. From those two values the system derives a status and a collection priority:
+
+| Fill level | Status |
+| --- | --- |
+| 90% or above | `CRITICAL` |
+| 75% to 89% | `HIGH` |
+| 50% to 74% | `MODERATE` |
+| Below 50% | `NORMAL` |
+
+Priority is computed as `fill × 0.6 + fill rate × 0.4`, so a bin that is both nearly full and filling quickly goes to the front of the queue.
+
+## Features
 
 ### Admin
 
-- Dashboard with live system counts, bin status summary and collection overview.
-- Add, update, search, list and delete bins; inspect fill level, fill rate, status and priority.
-- View, search and cancel collection requests; assign drivers to requests.
-- Manage users: list users, add User / Driver / Admin accounts, remove accounts.
-- System statistics and a one-screen complete system overview.
-- Interactive campus road network: explore the weighted graph, prepare locations on the map, preview shortest routes between any two campus locations.
-- Sort bins by fill, fill rate, priority or ID; binary search a bin by ID with a visible comparison count.
+- Dashboard with live system counts, a bin status summary and a collection overview.
+- Add, update, search, list and delete bins, with fill level, fill rate, status and priority on each.
+- View, search and cancel collection requests, and assign drivers to them.
+- Manage users: list accounts, add User, Driver or Admin accounts, and remove accounts.
+- System statistics and a one-screen overview of the whole system.
+- Interactive campus road network: explore the weighted graph, place locations on the map, and preview the shortest route between any two locations.
+- Sort bins by fill, fill rate, priority or ID, and binary search a bin by ID with a visible comparison count.
 
 ### User
 
@@ -68,30 +81,81 @@ The system models 15 campus locations connected by 29 weighted road segments. Bi
 ### Driver
 
 - View assigned collection requests and priority bins.
-- Smart collection: collects bins in priority order, with aggregated shortest routes between stops.
+- Run smart collection: bins are collected in priority order, with the shortest route between stops.
 - Find the shortest route between two campus locations.
 - Collect a bin and update the truck's current location.
 - View collection history.
 
-The web dashboard adds live OpenStreetMap tracking on top of all roles: bins drawn at their campus coordinates, the truck moving along the planned route, admin tools to place campus locations on the map, and a branded loading interstitial when a session opens.
+On top of all three roles, the web dashboard adds live OpenStreetMap tracking. Bins appear at their campus coordinates, the truck moves along the planned route, admins can place campus locations on the map, and a branded loading screen appears when a session opens.
 
-## System Architecture
+## Quick start
 
-The two applications are independent programs that communicate through one plain-text database file, `wastex_data.txt`.
+### Prerequisites
 
-- The C++ console app loads the file at startup and saves after every change.
-- The Node.js server reads the file fresh on every API request and writes it back after mutations (`webui/data.js`).
-- The web server never launches the C++ binary; it re-implements the same logic (graph building, BFS/DFS, Dijkstra, priority ordering, sorting, binary search) in JavaScript. Running one interface after the other keeps both views consistent; editing through both at the same time is last-write-wins.
+- **Console app:** Windows with a C++17 compiler (`g++`, MinGW-w64). It uses Windows console APIs (`windows.h`, masked password input through `_getch`).
+- **Web dashboard:** Node.js (LTS). No `npm install` is needed, because the server uses only Node built-ins.
+- **Internet access** for OpenStreetMap tiles and the Leaflet CDN.
 
-Web dashboard internals:
+### Installation
 
-- `webui/server.js` — HTTP server and JSON API using only Node built-ins (`http`, `fs`, `path`), serving the static front end and the API on port 3000 (`PORT` environment variable to override).
-- `webui/public/` — Leaflet-based front end (`index.html`, `app.js`, `styles.css`, `cursorfx.js`). Leaflet is loaded from a CDN and the map uses OpenStreetMap tiles.
-- `webui/mapdata/` — bundled campus map data: `kuet_buildings.geojson`, `kuet_roads.geojson`, `campus_nodes.json`, `metadata.json`, plus runtime files `manual_coords.json` and `driver_position.json`.
-- Route planning on the map snaps coordinates to the nearest road vertex and runs Dijkstra over the actual road geometry using haversine distances (`buildRoadGraph`, `routeOnRoads` in `webui/data.js`).
-- Map data: (c) OpenStreetMap contributors, ODbL 1.0.
+Clone or copy the repository into a local folder. Nothing else needs installing beyond the two prerequisites.
 
-## Data Structures and Algorithms
+### Run the console application
+
+The quickest way is to double-click `WasteX.bat`, which builds with all warnings enabled and launches the app. To build manually:
+
+```
+g++ -std=c++17 main.cpp Graph.cpp LinkedList.cpp -o KUETWasteX.exe
+KUETWasteX.exe
+```
+
+With make:
+
+```
+make          # build KUETWasteX.exe
+make WasteX   # build and run
+```
+
+Optional: run `setup.bat` once to add the project folder to your user PATH. After that you can type `WasteX` from any terminal. `clear.bat` (or `make reset`) deletes the saved data so the next launch starts fresh.
+
+### Run the web dashboard
+
+Double-click `start-webui.bat`, or run:
+
+```
+node webui\server.js
+```
+
+Then open http://localhost:3000 in a browser. The batch file opens it for you. Set the `PORT` environment variable to use a different port.
+
+Demo accounts for the Driver and User roles are listed on the login screen. New User accounts can be created from the sign-up form, and Admins can create Driver and Admin accounts from Manage Users.
+
+## Architecture
+
+The two programs are independent and communicate only through `wastex_data.txt`.
+
+```mermaid
+flowchart LR
+    CLI["C++17 console app<br/>main.cpp + headers"] <-->|"read / write"| DB[("wastex_data.txt<br/>shared plain-text database")]
+    API["Node.js server<br/>webui/server.js + data.js"] <-->|"read / write"| DB
+    API --> MAP["OSM map data<br/>webui/mapdata/"]
+    UI["Browser front end<br/>Leaflet + vanilla JS"] <-->|"JSON API"| API
+    UI --> OSM["OpenStreetMap tiles"]
+```
+
+- The console app loads the file at startup and saves after every change.
+- The Node.js server reads the file fresh on every API request and writes it back after each mutation (`webui/data.js`).
+- The web server never launches the C++ binary. It re-implements the same logic in JavaScript: graph building, BFS and DFS, Dijkstra, priority ordering, sorting and binary search. Running one interface after the other keeps both views consistent. Editing through both at the same time is last write wins.
+
+### Web dashboard internals
+
+- `webui/server.js` is the HTTP server and JSON API, built on `http`, `fs` and `path` only. It serves the static front end and the API on port 3000.
+- `webui/public/` holds the Leaflet front end: `index.html`, `app.js`, `styles.css` and `cursorfx.js`. Leaflet loads from a CDN and the map uses OpenStreetMap tiles.
+- `webui/mapdata/` holds the bundled campus map data: `kuet_buildings.geojson`, `kuet_roads.geojson`, `campus_nodes.json` and `metadata.json`, plus the runtime files `manual_coords.json` and `driver_position.json`.
+- Route planning on the map snaps coordinates to the nearest road vertex and runs Dijkstra over the real road geometry with haversine distances (`buildRoadGraph` and `routeOnRoads` in `webui/data.js`).
+- Map data: © OpenStreetMap contributors, ODbL 1.0.
+
+## Data structures and algorithms
 
 | Implementation | File | Used for |
 | --- | --- | --- |
@@ -99,18 +163,25 @@ Web dashboard internals:
 | Stack | `Stack.h` | Reversing the Dijkstra path for display |
 | FIFO queue | `Queue.h` | Pending collection request queue (bin IDs), saved and restored with the data file |
 | Max-heap priority queue | `PriorityQueue.h` | Collection order by computed bin priority |
-| Binary search tree | `BST.h` | Campus location registry (15 locations); in-order listing in the system overview |
-| Weighted graph (adjacency list) | `Graph.h` / `Graph.cpp` | Campus road network: 15 locations, 29 roads with kilometer weights; BFS and DFS traversal |
-| Dijkstra | `Dijkstra.h` | Shortest routes between campus locations; nearby bins; smart collection routes |
-| Merge sort and binary search | `SortSearch.h` | Sorting bins by fill, fill rate, priority or ID; binary search by bin ID with comparison count |
+| Binary search tree | `BST.h` | Campus location registry (15 locations), with in-order listing in the system overview |
+| Weighted graph (adjacency list) | `Graph.h` / `Graph.cpp` | Campus road network of 15 locations and 29 roads with kilometer weights, plus BFS and DFS traversal |
+| Dijkstra | `Dijkstra.h` | Shortest routes between locations, nearby bins and smart collection routes |
+| Merge sort and binary search | `SortSearch.h` | Sorting bins by fill, fill rate, priority or ID, and binary search by bin ID with a comparison count |
 
-Related rules live in `Bin.h`: status is `CRITICAL` at 90% or above, `HIGH` at 75%+, `MODERATE` at 50%+, otherwise `NORMAL`, and priority is `fill × 0.6 + fill rate × 0.4`.
+The status thresholds and the priority formula live in `Bin.h`.
 
-The web dashboard ports the same algorithm set to JavaScript in `webui/data.js`: graph construction, BFS/DFS, Dijkstra, priority ordering (`priorityList`), sorting (`sortBins`), binary search by ID (`binarySearchById`), plus the road-level router described above.
+The web dashboard ports the same algorithms to JavaScript in `webui/data.js`: graph construction, BFS and DFS, Dijkstra, priority ordering (`priorityList`), sorting (`sortBins`) and binary search by ID (`binarySearchById`). It adds the road-level router described above.
 
-## Data File Format
+### How smart collection works
 
-`wastex_data.txt` is a small tag-based, pipe-separated format, written and read by both the console app (`DataStore.h`) and the web server (`webui/data.js`).
+1. Every bin with a fill level above zero is pushed into the max-heap, ranked by priority.
+2. The truck pops the most urgent bin and runs Dijkstra from its current location to that bin's location.
+3. The bin is marked empty, its request is completed, a history record is added, and the truck's position moves to that stop.
+4. The loop repeats until the heap is empty, then the truck returns to its starting point.
+
+## Data file format
+
+`wastex_data.txt` is a small tag-based, pipe-separated format. The console app (`DataStore.h`) and the web server (`webui/data.js`) both read and write it.
 
 ```
 WASTEX_DATA_V1
@@ -121,7 +192,7 @@ B01|Cafeteria|85.00|4.00
 B02|Academic Area|0.00|20.00
 ...
 USERCOUNT|9
-username|password|role|fullName
+username|sha256$<salt>$<hash>|role|fullName
 ...
 ```
 
@@ -130,13 +201,13 @@ username|password|role|fullName
 | `NEXTID` | Counter for the next collection request ID |
 | `LOCATION` | The truck's current campus location |
 | `BINCOUNT` + rows | `binId \| location \| fillLevel \| fillRatePerHour` |
-| `USERCOUNT` + rows | `username \| password \| role \| fullName` |
+| `USERCOUNT` + rows | `username \| passwordHash \| role \| fullName` |
 | `REQCOUNT` + rows | `requestId \| binId \| location \| priority \| status \| requestedBy \| assignedDriver` |
 | `HISTCOUNT` + rows | `binId \| location \| description` |
 | `ROADCOUNT` + rows | `from \| to \| distanceInKm` |
 | `QCOUNT` + rows | One pending bin ID per line |
 
-Pipe characters inside text fields are stored as `/`. If the file is missing, the console app recreates default seed data on the next launch and the web dashboard falls back to built-in defaults.
+Passwords are stored as salted SHA-256 hashes in the form `sha256$<salt>$<hash>`. A legacy plain-text password is upgraded to a hash the first time the file is loaded. Pipe characters inside text fields are saved as `/`. If the file is missing, the console app recreates default seed data on the next launch, and the web dashboard falls back to built-in defaults.
 
 ## Screenshots
 
@@ -151,13 +222,13 @@ Pipe characters inside text fields are stored as `/`. If the file is missing, th
 | ![Admin dashboard top section, second capture](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 005656.png>) | ![System statistics with aggregated analytics](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010941.png>) |
 | *Admin dashboard, second view.* | *System statistics: aggregated analytics across bins, requests and users.* |
 | ![Live tracking map with bins, planned route and truck position on OpenStreetMap](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010848.png>) | ![Campus road network rendered on a real OpenStreetMap base layer](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010914.png>) |
-| *Live tracking map: bins, planned route and truck position on OpenStreetMap.* | *Campus road network over a real OpenStreetMap base layer; admins place campus locations on the map.* |
+| *Live tracking map: bins, planned route and truck position on OpenStreetMap.* | *Campus road network over a real OpenStreetMap base layer. Admins place campus locations on the map.* |
 | ![Schematic view of the weighted campus graph](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010927.png>) | ![Schematic network with a Dijkstra shortest route highlighted](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 011114.png>) |
-| *Schematic view of the weighted campus graph: 15 locations, 29 roads.* | *A Dijkstra search from a source node: the shortest route is highlighted and the destination marked.* |
+| *Schematic view of the weighted campus graph: 15 locations, 29 roads.* | *A Dijkstra search from a source node, with the shortest route highlighted and the destination marked.* |
 
 ### C++ core engine (console application)
 
-Representative screenshots; the full set of 45 is in `WasteX_Report_Screenshots_console/`.
+A representative selection. The full set of 45 screenshots is in `WasteX_Report_Screenshots_console/`.
 
 | | |
 | --- | --- |
@@ -174,63 +245,24 @@ Representative screenshots; the full set of 45 is in `WasteX_Report_Screenshots_
 | ![Campus road network adjacency listing](<WasteX_Report_Screenshots_console/41_Display_Graph.png>) | ![Dijkstra shortest route output](<WasteX_Report_Screenshots_console/44_Dijkstra_Shortest_Route.png>) |
 | *Campus road network: weighted adjacency list built from `Graph.cpp`.* | *Dijkstra shortest route between two campus locations.* |
 
-## Tech Stack
+## Tech stack
 
 | Layer | Technology |
 | --- | --- |
 | Console engine | C++17 (`g++` / MinGW-w64), Windows console APIs |
-| Web server | Node.js — built-in modules only (`http`, `fs`, `path`), no npm packages |
+| Password hashing | Salted SHA-256, implemented in `sha256.h` (C++) and with Node's `crypto` module (web) |
+| Web server | Node.js with built-in modules only (`http`, `fs`, `path`, `crypto`), no npm packages |
 | Front end | Vanilla JavaScript, HTML5, CSS3 |
-| Maps | Leaflet (loaded from a CDN) + OpenStreetMap tiles; custom GeoJSON campus data in `webui/mapdata/` |
-| Storage | One shared plain-text file `wastex_data.txt` |
+| Maps | Leaflet (loaded from a CDN), OpenStreetMap tiles, and custom GeoJSON campus data in `webui/mapdata/` |
+| Storage | One shared plain-text file, `wastex_data.txt` |
 
-## Getting Started
-
-### Prerequisites
-
-- Windows with a C++17 compiler (`g++`, MinGW-w64) for the console app. It uses Windows console APIs (`windows.h`, masked password input via `_getch`).
-- Node.js (LTS) for the web dashboard. No `npm install` is needed; the server uses only Node built-ins.
-- Internet access for OpenStreetMap tiles and the Leaflet CDN.
-
-### Installation
-
-Clone or copy this repository into a local folder — nothing else has to be installed on top of the two prerequisites.
-
-### Running the console application
-
-The quickest way is to double-click `WasteX.bat`, which builds with all warnings enabled and launches the app. Or build manually:
-
-```
-g++ -std=c++17 main.cpp Graph.cpp LinkedList.cpp -o KUETWasteX.exe
-KUETWasteX.exe
-```
-
-With make:
-
-```
-make          # build KUETWasteX.exe
-make WasteX   # build and run
-```
-
-Optional one-time setup: run `setup.bat` to add the project folder to your user PATH; afterwards you can type `WasteX` from any terminal. `clear.bat` (or `make reset`) deletes the saved data so the next launch starts fresh.
-
-### Running the web dashboard
-
-Double-click `start-webui.bat`, or run:
-
-```
-node webui\server.js
-```
-
-Then open http://localhost:3000 in a browser (the batch file opens it automatically). Demo accounts for each role are listed on the login screen; new User accounts can be created with the sign-up form, and Admins can create Driver and Admin accounts from Manage Users.
-
-## Repository Structure
+## Repository structure
 
 ```
 KUET WasteX/
 ├── main.cpp                       Console menus and role panels (Admin, User, Driver)
 ├── Graph.h / Graph.cpp            Campus road network with BFS and DFS
-├── Dijkstra.h                      Weighted shortest paths
+├── Dijkstra.h                     Weighted shortest paths
 ├── LinkedList.h / LinkedList.cpp  Collection history (linked list)
 ├── Stack.h                        Stack used to reverse Dijkstra paths
 ├── Queue.h                        FIFO queue of pending collection requests
@@ -238,7 +270,8 @@ KUET WasteX/
 ├── BST.h                          Binary search tree of campus locations
 ├── SortSearch.h                   Merge sort and binary search on bins
 ├── Bin.h, User.h, Request.h       Core data models
-├── DataStore.h                    Load/save wastex_data.txt
+├── DataStore.h                    Load and save wastex_data.txt
+├── sha256.h                       Salted SHA-256 password hashing
 ├── UI.h                           Console output helpers
 ├── Makefile                       Targets: all, WasteX, reset, clear, clean
 ├── build.bat / WasteX.bat         One-click build (WasteX.bat builds and runs)
@@ -255,7 +288,7 @@ KUET WasteX/
 └── WasteX webui screenshots/            Original dashboard captures (kept unedited)
 ```
 
-## Project Team
+## Project team
 
 <div align="center">
 
@@ -270,30 +303,31 @@ KUET WasteX/
 | Email: mahi2407101@stud.kuet.ac.bd | Email: moumita2407104@stud.kuet.ac.bd |
 | GitHub: [@RHMahi](https://github.com/RHMahi) &nbsp;·&nbsp; [LinkedIn](https://bd.linkedin.com/in/rahat-hasan-mahi) | GitHub: [@ayeshaawoM](https://github.com/ayeshaawoM) &nbsp;·&nbsp; [LinkedIn](https://bd.linkedin.com/in/ayesha-yesmin-moumita-a3a37b397) |
 
-**Founder team — developed together from the first line of code to the report.**
+**Founder team. Developed together from the first line of code to the report.**
 
 </div>
 
-## Future Improvements
+## Roadmap
 
-The following are **proposed** directions for future work — **not yet implemented** in this codebase:
+These are proposed directions. None of them is implemented yet.
 
-- Replace plain-text passwords with salted hashes and add session management.
-- Wire real hardware (GPS or GSM reports) into the live truck view instead of the simulated animation.
-- Complete map-based editing so the full road network renders its geometry rather than subset segments.
-- Add report export (CSV / PDF) for collection statistics.
-- Add scheduled pickups and automatic request escalation for critical bins.
+- Add session management and authentication on the API endpoints.
+- Connect real hardware (GPS or GSM reports) to the live truck view in place of the simulated animation.
+- Complete map-based editing so the full road network renders its own geometry instead of only the segments whose endpoints are placed.
+- Export collection statistics as CSV or PDF.
+- Add scheduled pickups and automatic escalation of requests for critical bins.
 
-## License and Credits
+## License and credits
 
-- This repository currently ships without a license file; it is a university coursework project distributed for educational review.
-- Map data and tiles: (c) [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, ODbL 1.0.
-- Map interaction: [Leaflet](https://leafletjs.com/) (loaded from a CDN at runtime, not bundled).
+- This repository currently ships without a license file. It is a university coursework project shared for educational review.
+- Map data and tiles: © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, ODbL 1.0.
+- Map interaction: [Leaflet](https://leafletjs.com/), loaded from a CDN at runtime and not bundled.
 
-## Notes and Limitations
+## Notes and limitations
 
-- The console app is built and tested on Windows; its persistence layer and password input use Windows APIs.
-- Accounts and data are stored in plain text in `wastex_data.txt`. This is a coursework project, not hardened for production.
-- The truck marker on the live map is a simulated animation along the computed route; there is no GPS hardware involved.
-- The campus road network view only draws road segments whose endpoints have been placed on the map; admins can place the remaining locations from the map view.
-- Internet access is required for OpenStreetMap tiles and the Leaflet CDN; the bundled road and building data keeps the map meaningful when tiles are unavailable.
+- The console app is built and tested on Windows. Its persistence layer and password input use Windows APIs.
+- Passwords are stored as salted hashes, but the web API does not enforce authentication on its endpoints and the browser keeps the signed-in user in `sessionStorage`. This is a coursework project and is not hardened for production.
+- The truck marker on the live map is a simulated animation along the computed route. No GPS hardware is involved.
+- Of the 15 campus locations, 5 (Administration, Cafeteria, A.E.H, K.A.H and R.H) match named objects in OpenStreetMap. The other 10 have no coordinates until an admin places them from the map view.
+- The campus road network view draws only the segments whose endpoints have been placed on the map.
+- Internet access is required for OpenStreetMap tiles and the Leaflet CDN. The bundled road and building data keeps the map useful when tiles are unavailable.
