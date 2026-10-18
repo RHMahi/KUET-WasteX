@@ -17,7 +17,9 @@ Track every bin on campus, collect in priority order, and drive the shortest rou
 ![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-Tiles-7EBC6F?logo=openstreetmap&logoColor=white)
 ![Windows](https://img.shields.io/badge/Platform-Windows-45B1E8?logo=windows&logoColor=white)
 
-[Overview](#overview) · [Features](#features) · [Quick start](#quick-start) · [Architecture](#architecture) · [Algorithms](#data-structures-and-algorithms) · [Screenshots](#screenshots) · [Team](#project-team)
+[![Live demo](https://img.shields.io/badge/Live_demo-kuet--wastex.onrender.com-1fa855?logo=render&logoColor=white)](https://kuet-wastex.onrender.com/)
+
+[Live demo](https://kuet-wastex.onrender.com/) · [Overview](#overview) · [Features](#features) · [Quick start](#quick-start) · [Architecture](#architecture) · [Algorithms](#data-structures-and-algorithms) · [Screenshots](#screenshots) · [Team](#project-team)
 
 </div>
 
@@ -26,18 +28,19 @@ Track every bin on campus, collect in priority order, and drive the shortest rou
 ## Table of contents
 
 1. [Overview](#overview)
-2. [Features](#features)
-3. [Quick start](#quick-start)
-4. [Architecture](#architecture)
-5. [Data structures and algorithms](#data-structures-and-algorithms)
-6. [Data file format](#data-file-format)
-7. [Screenshots](#screenshots)
-8. [Tech stack](#tech-stack)
-9. [Repository structure](#repository-structure)
-10. [Project team](#project-team)
-11. [Roadmap](#roadmap)
-12. [License and credits](#license-and-credits)
-13. [Notes and limitations](#notes-and-limitations)
+2. [Live demo](#live-demo)
+3. [Features](#features)
+4. [Quick start](#quick-start)
+5. [Architecture](#architecture)
+6. [Data structures and algorithms](#data-structures-and-algorithms)
+7. [Data file format](#data-file-format)
+8. [Screenshots](#screenshots)
+9. [Tech stack](#tech-stack)
+10. [Repository structure](#repository-structure)
+11. [Project team](#project-team)
+12. [Roadmap](#roadmap)
+13. [License and credits](#license-and-credits)
+14. [Notes and limitations](#notes-and-limitations)
 
 ## Overview
 
@@ -58,6 +61,12 @@ The model covers 15 campus locations joined by 29 weighted road segments. Each b
 | Below 50% | `NORMAL` |
 
 Priority is computed as `fill × 0.6 + fill rate × 0.4`, so a bin that is both nearly full and filling quickly goes to the front of the queue.
+
+## Live demo
+
+The dashboard is deployed at **https://kuet-wastex.onrender.com/**. Pick a role tab on the landing page and sign in with the demo account shown on the login screen, or create a User account from the sign-up form.
+
+The hosted version runs on a free tier, so the first request after a period of inactivity can take about a minute while the server wakes up. Changes made on the live site may reset when the service restarts, because the data lives in a plain text file.
 
 ## Features
 
