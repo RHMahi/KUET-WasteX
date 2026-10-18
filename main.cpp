@@ -17,7 +17,25 @@
 #include"Request.h"
 #include"DataStore.h"
 #include"UI.h"
+#include"sha256.h"
 using namespace std;
+
+string newSalt()
+{
+    static unsigned long counter=0;
+    unsigned long long t=(unsigned long long)time(NULL)*1000ULL+GetTickCount64();
+    t+=(++counter);
+    char buf[40];
+    sprintf(buf,"%08x%08x",(unsigned)(t>>32),(unsigned)t);
+    return string(buf);
+}
+
+string wastexStoredPassword(string pw)
+{
+    if(wastexIsHashed(pw))
+        return pw;
+    return wastexHashPassword(pw,newSalt());
+}
 
 string Format2(double value)
 {
@@ -159,6 +177,8 @@ void restoreData(AppData& data)
         SavedUser&u=data.users[i];
         userList.addUser(u.username,u.password,u.role,u.name);
     }
+    for(int i=0;i<userList.count;i++)
+        userList.users[i].password=wastexStoredPassword(userList.users[i].password);
     requestList.clear();
     for(int i=0;i<(int)data.requests.size();i++)
     {
@@ -257,6 +277,16 @@ void seedBins()
     bins[binCount++]=Bin("B03","S.S.H",95,3);
     bins[binCount++]=Bin("B04","Main Gate",40,2);
     bins[binCount++]=Bin("B05","Administration",70,5);
+    bins[binCount++]=Bin("B06","Central Field",65,2.5);
+    bins[binCount++]=Bin("B07","A.E.H",30,1.5);
+    bins[binCount++]=Bin("B08","F.A.H",78,2);
+    bins[binCount++]=Bin("B09","K.A.H",92,3.5);
+    bins[binCount++]=Bin("B10","R.H",25,1);
+    bins[binCount++]=Bin("B11","IT Park",58,1.8);
+    bins[binCount++]=Bin("B12","Janata Bank",45,2);
+    bins[binCount++]=Bin("B13","Pocket Gate",12,0.5);
+    bins[binCount++]=Bin("B14","Post Office",88,3);
+    bins[binCount++]=Bin("B15","Guest House",20,0.8);
 }
 
 void seedLocations()
@@ -280,9 +310,11 @@ void seedLocations()
 
 void seedUsers()
 {
-    userList.addUser("admin","admin123","Admin","System Administrator");
-    userList.addUser("driver1","drive123","Driver","Rahim");
-    userList.addUser("student1","pass123","User","Karim");
+      userList.addUser("admin",wastexStoredPassword("admin123"),"Admin","System Administrator");
+      userList.addUser("Mahi",wastexStoredPassword("12411030"),"Admin","Rahat Hasan Mahi - Founder");
+      userList.addUser("Ayesha",wastexStoredPassword("101104mm"),"Admin","Ayesha Yesmin Moumita - Founder");
+      userList.addUser("driver1",wastexStoredPassword("drive123"),"Driver","Rahim");
+      userList.addUser("student1",wastexStoredPassword("pass123"),"User","Karim");
 }
 
 void seedRequests()
@@ -909,7 +941,7 @@ void addAccount(string role)
     password=readPassword();
     cout<<"Enter full name: ";
     getline(cin,name);
-    if(userList.addUser(username,password,role,name))
+    if(userList.addUser(username,wastexStoredPassword(password),role,name))
     {
         PrintSuccess(role+" "+username+" added successfully.");
         saveData();
@@ -954,7 +986,9 @@ void manageUsers()
             string username;
             cout<<"Enter username to delete: ";
             getline(cin,username);
-            if(userList.deleteUser(username))
+            if(username=="Mahi"||username=="Ayesha")
+                PrintError("Founder accounts cannot be deleted from the admin list.");
+            else if(userList.deleteUser(username))
             {
                 PrintSuccess("User "+username+" deleted.");
                 saveData();
@@ -1559,7 +1593,7 @@ void signUpUser()
     password=readPassword();
     cout<<"Enter full name: ";
     getline(cin,name);
-    if(userList.addUser(username,password,"User",name))
+    if(userList.addUser(username,wastexStoredPassword(password),"User",name))
     {
         PrintSuccess("Account created. You can now sign in.");
         saveData();

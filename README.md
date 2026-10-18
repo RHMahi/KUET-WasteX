@@ -1,32 +1,69 @@
+<div align="center">
+
+<img src="WasteXlogo.png" alt="KUET WasteX logo" width="140">
+
 # KUET WasteX
 
-KUET WasteX is a smart campus waste management system for KUET (Khulna University of Engineering & Technology). It ships in two forms that share a single data file:
+**Smart campus waste management — a C++ data-structures core with a live web dashboard.**
 
-- **C++ core engine** - a console application that implements every data structure and algorithm by hand: linked list, stack, queue, priority queue, binary search tree, weighted graph, Dijkstra, merge sort and binary search.
-- **Web dashboard** - a dependency-free Node.js server with a browser interface (live tracking on OpenStreetMap, role-based panels) that operates on the same data file and mirrors the core algorithms in JavaScript.
+*Track every bin on campus, collect in priority order, and drive the shortest routes.*
 
-Both interfaces support three roles: **Admin**, **User** (student/staff) and **Driver**.
+![C++](https://img.shields.io/badge/C++-17-00599C?logo=cplusplus&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-Built--in_Serve-6DA55F?logo=nodedotjs&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-Markup-E34F26?logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-Styling-1572B6?logo=css3&logoColor=white)
+![Leaflet](https://img.shields.io/badge/Leaflet-Maps-199900?logo=leaflet&logoColor=white)
+![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-Tiles-7EBC6F?logo=openstreetmap&logoColor=white)
+![Windows](https://img.shields.io/badge/Platform-Windows-45B1E8?logo=windows&logoColor=white)
 
-## Features
+</div>
+
+---
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Key Features](#key-features)
+3. [System Architecture](#system-architecture)
+4. [Data Structures and Algorithms](#data-structures-and-algorithms)
+5. [Data File Format](#data-file-format)
+6. [Screenshots](#screenshots)
+7. [Tech Stack](#tech-stack)
+8. [Getting Started](#getting-started)
+9. [Repository Structure](#repository-structure)
+10. [Project Team](#project-team)
+11. [Future Improvements](#future-improvements)
+12. [License and Credits](#license-and-credits)
+13. [Notes and Limitations](#notes-and-limitations)
+
+## Overview
+
+KUET WasteX is a solid-waste management system for a university campus, built as a coursework project around hand-implemented data structures and algorithms. It ships as two programs that share one plain-text database, `wastex_data.txt`:
+
+- **A C++17 console application** — the core engine: bins, users, requests and a campus road graph managed entirely with data-structures written from scratch (linked list, stack, FIFO queue, max-heap priority queue, binary search tree, weighted graph with BFS/DFS, Dijkstra, merge sort and binary search).
+- **A Node.js web dashboard** — a role-based front end served by a dependency-free HTTP server (Node built-ins only), featuring live OpenStreetMap tracking of bins and the collection truck, a visual campus road network, and analytics screens.
+
+The system models 15 campus locations connected by 29 weighted road segments. Bin status is derived from two monitored values (fill level and fill rate per hour): `CRITICAL` at 90% or above, `HIGH` at 75%+, `MODERATE` at 50%+, otherwise `NORMAL`. Collection priority is computed as `fill × 0.6 + fill rate × 0.4`.
+
+## Key Features
 
 ### Admin
 
-- Bin management: add, update, delete, inspect and search smart bins (fill level and fill rate).
-- User management: create driver/admin accounts and browse the user list.
-- Request management: view all collection requests, assign drivers and cancel requests.
-- Collection history: browse, search, delete individual records or clear the history.
-- Campus road network: weighted road graph with BFS and DFS traversal, Dijkstra shortest paths and the ability to add new roads.
-- Search and sort bins: merge sort by fill level, fill rate, priority or bin ID; binary search by bin ID with the number of comparisons shown.
-- System statistics and a full system overview.
+- Dashboard with live system counts, bin status summary and collection overview.
+- Add, update, search, list and delete bins; inspect fill level, fill rate, status and priority.
+- View, search and cancel collection requests; assign drivers to requests.
+- Manage users: list users, add User / Driver / Admin accounts, remove accounts.
+- System statistics and a one-screen complete system overview.
+- Interactive campus road network: explore the weighted graph, prepare locations on the map, preview shortest routes between any two campus locations.
+- Sort bins by fill, fill rate, priority or ID; binary search a bin by ID with a visible comparison count.
 
 ### User
 
-- Browse all bins, including a nearby-bins view ordered by shortest walking distance over the campus road network.
-- Report a full bin and create a collection request.
-- Track a request by its ID or bin ID.
-- Search a bin by ID with binary search.
-- View personal request history and the campus collection history.
-- Web only: sign up with student details (roll, department, batch, year, semester).
+- Register and sign in with self-service credentials.
+- Browse nearby bins ordered by shortest walking distance (Dijkstra).
+- File collection requests for bins and follow their status.
+- Review collection history and system statistics.
 
 ### Driver
 
@@ -36,9 +73,9 @@ Both interfaces support three roles: **Admin**, **User** (student/staff) and **D
 - Collect a bin and update the truck's current location.
 - View collection history.
 
-The web dashboard adds live OpenStreetMap tracking: bins drawn at their campus coordinates, the truck moving along the planned route, and admin tools to place campus locations on the map.
+The web dashboard adds live OpenStreetMap tracking on top of all roles: bins drawn at their campus coordinates, the truck moving along the planned route, admin tools to place campus locations on the map, and a branded loading interstitial when a session opens.
 
-## Architecture
+## System Architecture
 
 The two applications are independent programs that communicate through one plain-text database file, `wastex_data.txt`.
 
@@ -48,9 +85,9 @@ The two applications are independent programs that communicate through one plain
 
 Web dashboard internals:
 
-- `webui/server.js` - HTTP server and JSON API using only Node built-ins (`http`, `fs`, `path`), serving the static front end and the API on port 3000 (`PORT` environment variable to override).
-- `webui/public/` - Leaflet-based front end (`index.html`, `app.js`, `styles.css`). Leaflet is loaded from a CDN and the map uses OpenStreetMap tiles.
-- `webui/mapdata/` - bundled campus map data: `kuet_buildings.geojson`, `kuet_roads.geojson`, `campus_nodes.json`, `metadata.json`, plus runtime files `manual_coords.json` and `driver_position.json`.
+- `webui/server.js` — HTTP server and JSON API using only Node built-ins (`http`, `fs`, `path`), serving the static front end and the API on port 3000 (`PORT` environment variable to override).
+- `webui/public/` — Leaflet-based front end (`index.html`, `app.js`, `styles.css`, `cursorfx.js`). Leaflet is loaded from a CDN and the map uses OpenStreetMap tiles.
+- `webui/mapdata/` — bundled campus map data: `kuet_buildings.geojson`, `kuet_roads.geojson`, `campus_nodes.json`, `metadata.json`, plus runtime files `manual_coords.json` and `driver_position.json`.
 - Route planning on the map snaps coordinates to the nearest road vertex and runs Dijkstra over the actual road geometry using haversine distances (`buildRoadGraph`, `routeOnRoads` in `webui/data.js`).
 - Map data: (c) OpenStreetMap contributors, ODbL 1.0.
 
@@ -67,7 +104,7 @@ Web dashboard internals:
 | Dijkstra | `Dijkstra.h` | Shortest routes between campus locations; nearby bins; smart collection routes |
 | Merge sort and binary search | `SortSearch.h` | Sorting bins by fill, fill rate, priority or ID; binary search by bin ID with comparison count |
 
-Related rules live in `Bin.h`: status is `CRITICAL` at 90% or above, `HIGH` at 75%+, `MODERATE` at 50%+, otherwise `NORMAL`, and priority is `fill * 0.6 + fill rate * 0.4`.
+Related rules live in `Bin.h`: status is `CRITICAL` at 90% or above, `HIGH` at 75%+, `MODERATE` at 50%+, otherwise `NORMAL`, and priority is `fill × 0.6 + fill rate × 0.4`.
 
 The web dashboard ports the same algorithm set to JavaScript in `webui/data.js`: graph construction, BFS/DFS, Dijkstra, priority ordering (`priorityList`), sorting (`sortBins`), binary search by ID (`binarySearchById`), plus the road-level router described above.
 
@@ -101,6 +138,52 @@ username|password|role|fullName
 
 Pipe characters inside text fields are stored as `/`. If the file is missing, the console app recreates default seed data on the next launch and the web dashboard falls back to built-in defaults.
 
+## Screenshots
+
+### Web dashboard (http://localhost:3000)
+
+| | |
+| --- | --- |
+| ![Landing page with role tabs for Admin, User and Driver over the KUET campus background](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010751.png>) | ![Branded loading interstitial with the WasteX logo and progress bar](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 005728.png>) |
+| *Landing page: role tabs for Admin, User and Driver over the KUET campus background.* | *Branded loading interstitial shown while a session opens.* |
+| ![Loading interstitial with idle trail fragments in view](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010835.png>) | ![Admin dashboard with live counts, bin summary and collection overview](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010857.png>) |
+| *The loading interstitial, with idle trail fragments in view.* | *Admin dashboard: live counts, bin status summary and collection overview.* |
+| ![Admin dashboard top section, second capture](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 005656.png>) | ![System statistics with aggregated analytics](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010941.png>) |
+| *Admin dashboard, second view.* | *System statistics: aggregated analytics across bins, requests and users.* |
+| ![Live tracking map with bins, planned route and truck position on OpenStreetMap](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010848.png>) | ![Campus road network rendered on a real OpenStreetMap base layer](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010914.png>) |
+| *Live tracking map: bins, planned route and truck position on OpenStreetMap.* | *Campus road network over a real OpenStreetMap base layer; admins place campus locations on the map.* |
+| ![Schematic view of the weighted campus graph](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 010927.png>) | ![Schematic network with a Dijkstra shortest route highlighted](<WasteX_Report_Screenshots_webui/Screenshot 2026-10-19 011114.png>) |
+| *Schematic view of the weighted campus graph: 15 locations, 29 roads.* | *A Dijkstra search from a source node: the shortest route is highlighted and the destination marked.* |
+
+### C++ core engine (console application)
+
+Representative screenshots; the full set of 45 is in `WasteX_Report_Screenshots_console/`.
+
+| | |
+| --- | --- |
+| ![Main menu with role selection and data file load message](<WasteX_Report_Screenshots_console/01_Main_Menu.png>) | ![Admin sign in](<WasteX_Report_Screenshots_console/03_Admin_Login_Success.png>) |
+| *Startup: role selection (Admin, User, Driver) with saved data loaded from `wastex_data.txt`.* | *Admin sign-in.* |
+| ![Admin dashboard menu](<WasteX_Report_Screenshots_console/11_Admin_Dashboard.png>) | ![Bin details screen](<WasteX_Report_Screenshots_console/13_Bin_Details.png>) |
+| *Admin dashboard.* | *Bin details: fill level, fill rate, status and priority.* |
+| ![All collection requests](<WasteX_Report_Screenshots_console/22_View_All_Requests.png>) | ![Assigning a driver to a request](<WasteX_Report_Screenshots_console/23_Assign_Driver_Screen.png>) |
+| *Collection requests with priority and status.* | *Assigning a driver to a collection request.* |
+| ![Collection history from the linked list](<WasteX_Report_Screenshots_console/27_Collection_History.png>) | ![Nearby bins ordered by shortest distance](<WasteX_Report_Screenshots_console/29_Nearby_Bins.png>) |
+| *Collection history, stored as a linked list.* | *Nearby bins ordered by Dijkstra shortest-path distance.* |
+| ![Bins sorted by fill level with merge sort](<WasteX_Report_Screenshots_console/35_Sort_By_Fill.png>) | ![Binary search for a bin by ID](<WasteX_Report_Screenshots_console/39_Binary_Search_Bin.png>) |
+| *Bins sorted by fill level using merge sort.* | *Binary search by bin ID, showing the number of comparisons.* |
+| ![Campus road network adjacency listing](<WasteX_Report_Screenshots_console/41_Display_Graph.png>) | ![Dijkstra shortest route output](<WasteX_Report_Screenshots_console/44_Dijkstra_Shortest_Route.png>) |
+| *Campus road network: weighted adjacency list built from `Graph.cpp`.* | *Dijkstra shortest route between two campus locations.* |
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Console engine | C++17 (`g++` / MinGW-w64), Windows console APIs |
+| Web server | Node.js — built-in modules only (`http`, `fs`, `path`), no npm packages |
+| Front end | Vanilla JavaScript, HTML5, CSS3 |
+| Maps | Leaflet (loaded from a CDN) + OpenStreetMap tiles; custom GeoJSON campus data in `webui/mapdata/` |
+| Storage | One shared plain-text file `wastex_data.txt` |
+
 ## Getting Started
 
 ### Prerequisites
@@ -109,7 +192,11 @@ Pipe characters inside text fields are stored as `/`. If the file is missing, th
 - Node.js (LTS) for the web dashboard. No `npm install` is needed; the server uses only Node built-ins.
 - Internet access for OpenStreetMap tiles and the Leaflet CDN.
 
-### Console application
+### Installation
+
+Clone or copy this repository into a local folder — nothing else has to be installed on top of the two prerequisites.
+
+### Running the console application
 
 The quickest way is to double-click `WasteX.bat`, which builds with all warnings enabled and launches the app. Or build manually:
 
@@ -127,7 +214,7 @@ make WasteX   # build and run
 
 Optional one-time setup: run `setup.bat` to add the project folder to your user PATH; afterwards you can type `WasteX` from any terminal. `clear.bat` (or `make reset`) deletes the saved data so the next launch starts fresh.
 
-### Web dashboard
+### Running the web dashboard
 
 Double-click `start-webui.bat`, or run:
 
@@ -137,93 +224,13 @@ node webui\server.js
 
 Then open http://localhost:3000 in a browser (the batch file opens it automatically). Demo accounts for each role are listed on the login screen; new User accounts can be created with the sign-up form, and Admins can create Driver and Admin accounts from Manage Users.
 
-## Application Interface
-
-Screenshots of the web dashboard at http://localhost:3000.
-
-![Login page with Admin, User and Driver tabs over the KUET campus background](WasteX_Report_Screenshots_webui/01_Login_Page.png)
-
-*Login page: role tabs for Admin, User and Driver.*
-
-![Admin dashboard with live system counts and bin status summary](WasteX_Report_Screenshots_webui/02_Admin_Dashboard.png)
-
-*Admin dashboard: live counts and bin status summary.*
-
-![Live tracking map with bins, planned route and truck position on OpenStreetMap](WasteX_Report_Screenshots_webui/03_Live_Tracking_Map.png)
-
-*Live tracking map: bins, planned route and truck position on OpenStreetMap.*
-
-![Manage collection requests: assign drivers and cancel requests](WasteX_Report_Screenshots_webui/04_Manage_Collection_Requests.png)
-
-*Manage collection requests: assign, cancel and follow requests.*
-
-![System statistics with aggregate analytics](WasteX_Report_Screenshots_webui/05_System_Statistics.png)
-
-*System statistics: aggregated analytics across bins, requests and users.*
-
-![System overview showing the complete system state on one screen](WasteX_Report_Screenshots_webui/06_System_Overview.png)
-
-*System overview: the complete system state on one screen.*
-
-## C++ Core Engine
-
-The console application is where the hand-written data structures run. Representative screenshots; the full set of 45 is in `WasteX_Report_Screenshots_console/`.
-
-![Main menu with role selection and data file load message](WasteX_Report_Screenshots_console/01_Main_Menu.png)
-
-*Startup: role selection (Admin, User, Driver) with saved data loaded from `wastex_data.txt`.*
-
-![Admin sign in](WasteX_Report_Screenshots_console/03_Admin_Login_Success.png)
-
-*Admin sign-in.*
-
-![Admin dashboard menu](WasteX_Report_Screenshots_console/11_Admin_Dashboard.png)
-
-*Admin dashboard.*
-
-![Bin details screen](WasteX_Report_Screenshots_console/13_Bin_Details.png)
-
-*Bin details: fill level, fill rate, status and priority.*
-
-![All collection requests](WasteX_Report_Screenshots_console/22_View_All_Requests.png)
-
-*Collection requests with priority and status.*
-
-![Assigning a driver to a request](WasteX_Report_Screenshots_console/23_Assign_Driver_Screen.png)
-
-*Assigning a driver to a collection request.*
-
-![Collection history from the linked list](WasteX_Report_Screenshots_console/27_Collection_History.png)
-
-*Collection history, stored as a linked list.*
-
-![Nearby bins ordered by shortest distance](WasteX_Report_Screenshots_console/29_Nearby_Bins.png)
-
-*Nearby bins ordered by Dijkstra shortest-path distance.*
-
-![Bins sorted by fill level with merge sort](WasteX_Report_Screenshots_console/35_Sort_By_Fill.png)
-
-*Bins sorted by fill level using merge sort.*
-
-![Binary search for a bin by ID](WasteX_Report_Screenshots_console/39_Binary_Search_Bin.png)
-
-*Binary search by bin ID, showing the number of comparisons.*
-
-![Campus road network adjacency listing](WasteX_Report_Screenshots_console/41_Display_Graph.png)
-
-*Campus road network: weighted adjacency list built from `Graph.cpp`.*
-
-![Dijkstra shortest route output](WasteX_Report_Screenshots_console/44_Dijkstra_Shortest_Route.png)
-
-*Dijkstra shortest route between two campus locations.*
-
 ## Repository Structure
 
 ```
 KUET WasteX/
 ├── main.cpp                       Console menus and role panels (Admin, User, Driver)
 ├── Graph.h / Graph.cpp            Campus road network with BFS and DFS
-├── Dijkstra.h                     Weighted shortest paths
+├── Dijkstra.h                      Weighted shortest paths
 ├── LinkedList.h / LinkedList.cpp  Collection history (linked list)
 ├── Stack.h                        Stack used to reverse Dijkstra paths
 ├── Queue.h                        FIFO queue of pending collection requests
@@ -241,12 +248,47 @@ KUET WasteX/
 ├── webui/
 │   ├── server.js                  HTTP server and JSON API (Node built-ins only)
 │   ├── data.js                    Data layer and JavaScript ports of the algorithms
-│   ├── public/                    Web front end (index.html, app.js, styles.css)
+│   ├── public/                    Web front end (index.html, app.js, styles.css, cursorfx.js)
 │   └── mapdata/                   Campus GeoJSON: roads, buildings, nodes, metadata
 ├── WasteX_Report_Screenshots_console/   Console screenshots used in this README
 ├── WasteX_Report_Screenshots_webui/     Web dashboard screenshots used in this README
 └── WasteX webui screenshots/            Original dashboard captures (kept unedited)
 ```
+
+## Project Team
+
+<div align="center">
+
+| | |
+| --- | --- |
+| <img src="Rahat%20Hasan%20Mahi.png" width="140" alt="Rahat Hasan Mahi"> | <img src="Ayesha%20Yesmin%20Moumita.jpeg" width="140" alt="Ayesha Yesmin Moumita"> |
+| **Rahat Hasan Mahi** | **Ayesha Yesmin Moumita** |
+| Student ID: 2407101 | Student ID: 2407104 |
+| B.Sc. Engineering in Computer Science and Engineering | B.Sc. Engineering in Computer Science and Engineering |
+| Khulna University of Engineering & Technology (KUET) | Khulna University of Engineering & Technology (KUET) |
+| Khulna, Bangladesh | Khulna, Bangladesh |
+| Email: mahi2407101@stud.kuet.ac.bd | Email: moumita2407104@stud.kuet.ac.bd |
+| GitHub: [@RHMahi](https://github.com/RHMahi) &nbsp;·&nbsp; [LinkedIn](https://bd.linkedin.com/in/rahat-hasan-mahi) | GitHub: [@ayeshaawoM](https://github.com/ayeshaawoM) &nbsp;·&nbsp; [LinkedIn](https://bd.linkedin.com/in/ayesha-yesmin-moumita-a3a37b397) |
+
+**Founder team — developed together from the first line of code to the report.**
+
+</div>
+
+## Future Improvements
+
+The following are **proposed** directions for future work — **not yet implemented** in this codebase:
+
+- Replace plain-text passwords with salted hashes and add session management.
+- Wire real hardware (GPS or GSM reports) into the live truck view instead of the simulated animation.
+- Complete map-based editing so the full road network renders its geometry rather than subset segments.
+- Add report export (CSV / PDF) for collection statistics.
+- Add scheduled pickups and automatic request escalation for critical bins.
+
+## License and Credits
+
+- This repository currently ships without a license file; it is a university coursework project distributed for educational review.
+- Map data and tiles: (c) [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, ODbL 1.0.
+- Map interaction: [Leaflet](https://leafletjs.com/) (loaded from a CDN at runtime, not bundled).
 
 ## Notes and Limitations
 

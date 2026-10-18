@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KUET WasteX - Smart Waste Collection System</title>
-  <link rel="icon" type="image/png" href="kuet-logo.png" />
+  <title>KUET_WasteX </title>
+  <link rel="icon" type="image/png" href="WasteXlogo.png" />
   <link rel="stylesheet" href="styles.css" />
   <!-- Leaflet (OpenStreetMap interactive map). Requires internet for tiles. -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -13,129 +13,309 @@
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
-  <!-- ============ LOGIN VIEW ============ -->
+  <!-- ============ PUBLIC LANDING + LOGIN VIEW ============ -->
   <section id="loginView" class="login-view">
-    <div class="login-inner">
-      <div class="login-hero">
-        <div class="hero-head">
-          <img class="kuet-logo hero-logo" src="kuet-logo.png" alt="KUET Logo"
+
+    <header class="land-nav">
+      <div class="land-wrap land-nav-in">
+        <a class="land-brand" href="#top" aria-label="KUET WasteX home">
+          <img class="kuet-logo nav-logo" src="WasteXlogo.png" alt="KUET Logo"
                onerror="this.onerror=null;this.src='kuet-logo.svg'">
-          <div>
-            <h1 class="hero-title">KUET WasteX</h1>
-            <p class="hero-sub">Smart Waste Collection System</p>
+          <div class="land-brand-text">
+            <strong>KUET_WasteX</strong>
+            
+          </div>
+        </a>
+        <nav class="land-nav-links" aria-label="Page navigation">
+          <a href="#features">Overview</a>
+          <a href="#team">Team</a>
+          <a class="btn btn-primary btn-sm" href="#signin">Sign in</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- ============ HERO + SIGN-IN ============ -->
+      <section class="hero">
+        <div class="land-wrap hero-grid">
+          <div class="hero-copy">
+           
+            <h1>Waste Wisely,<br>Keep KUET Clean.</h1>
+           <p class="lede">
+  Campus waste management faces challenges such as overflowing
+  bins, delayed collection, and inefficient routes. KUET_WasteX
+  addresses these challenges through smarter monitoring,
+  collection prioritization, and route planning.
+</p>
+            <ul class="hero-points">
+              <li>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Real time bin fill monitoring
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Smart priority &amp; route planning
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Shortest routes on the campus road network
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Live tracking on OpenStreetMap
+              </li>
+            </ul>
+            <div class="hero-cta">
+              
+             <a class="btn btn-ghost btn-meet-team" href="#team">
+              Meet the team</a>
+            </div>
+          </div>
+
+          <div class="hero-card" id="signin">
+            <div class="login-card">
+              <div class="login-brand">
+                 <img class="kuet-logo sm" src="WasteXlogo.png" alt="KUET Logo"
+                     onerror="this.onerror=null;this.src='kuet-logo.svg'">
+                <div>
+                  <strong>KUET WasteX</strong>
+                  
+                </div>
+              </div>
+              <div class="role-tabs" id="roleTabs">
+                <button class="role-tab active" data-role="Admin">Admin</button>
+                <button class="role-tab" data-role="User">User</button>
+                <button class="role-tab" data-role="Driver">Driver</button>
+              </div>
+
+              <form id="loginForm" autocomplete="off" novalidate>
+                <label for="loginUser">Username</label>
+                <input type="text" id="loginUser" placeholder="Enter username" />
+                <label for="loginPass">Password</label>
+                <div class="input-wrap">
+                  <input type="password" id="loginPass" placeholder="Enter password" />
+                  <button type="button" class="pw-toggle" data-target="loginPass" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+                <div class="form-error hidden" id="loginError"></div>
+                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+              </form>
+
+              <div class="signup-hint" id="signupHint">
+                New user? <button type="button" id="showSignup" class="link-btn">Create an account</button>
+              </div>
+
+              <form id="signupForm" class="hidden" autocomplete="off" novalidate>
+                <label for="suUser">Username</label>
+                <input type="text" id="suUser" placeholder="Choose a username" />
+                <label for="suPass">Password</label>
+                <div class="input-wrap">
+                  <input type="password" id="suPass" placeholder="Choose a password" />
+                  <button type="button" class="pw-toggle" data-target="suPass" aria-label="Show password">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+                <label for="suName">Full Name</label>
+                <input type="text" id="suName" placeholder="Your full name" />
+                <div class="form-grid2">
+                  <div>
+                    <label for="suRoll">Student ID / Roll</label>
+                    <input type="text" id="suRoll" placeholder="e.g. 2107001" />
+                  </div>
+                  <div>
+                    <label for="suBatch">Batch</label>
+                    <input type="text" id="suBatch" placeholder="e.g. 2K22" />
+                  </div>
+                  <div>
+                    <label for="suDept">Department</label>
+                    <select id="suDept">
+                      <option value="">Select department</option>
+                      <option>CSE</option><option>EEE</option><option>ECE</option>
+                      <option>ME</option><option>CE</option><option>BME</option>
+                      <option>MTE</option><option>CHE</option><option>IEM</option>
+                      <option>LE</option><option>TE</option><option>URP</option>
+                      <option>Architecture</option><option>BECM</option><option>Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="suYear">Year</label>
+                    <select id="suYear">
+                      <option value="">Select year</option>
+                      <option value="1">1st Year</option><option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option><option value="4">4th Year</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="suSemester">Semester</label>
+                    <select id="suSemester">
+                      <option value="">Select semester</option>
+                      <option>1-1</option><option>1-2</option><option>2-1</option><option>2-2</option>
+                      <option>3-1</option><option>3-2</option><option>4-1</option><option>4-2</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-error hidden" id="signupError"></div>
+                <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                <div class="signup-hint">Already have an account? <button type="button" id="hideSignup" class="link-btn">Sign in</button></div>
+              </form>
+
+              <details class="demo-creds">
+                <summary>Demo accounts</summary>
+                <div class="demo-list">
+                  <span>Driver &middot; <b>driver1 / drive123</b></span>
+                  <span>User &middot; <b>student1 / pass123</b></span>
+                </div>
+              </details>
+            </div>
           </div>
         </div>
-        <ul class="hero-points">
-          <li><span></span> Real-time bin fill monitoring</li>
-          <li><span></span> Smart priority &amp; route planning</li>
-          <li><span></span> Dijkstra shortest path &amp; graph tools</li>
-          <li><span></span> Centralized campus analytics</li>
-        </ul>
-      </div>
+      </section>
 
-      <div class="login-card">
-        <div class="login-brand">
-          <img class="kuet-logo sm" src="kuet-logo.png" alt="KUET Logo"
+      <!-- ============ OUR TEAM ============ -->
+      <section class="team" id="team">
+        <div class="land-wrap">
+          <p class="kicker">FOUNDER TEAM</p>
+          <h2>Our Team</h2>
+          <p class="section-sub">Meet the people behind the project.</p>
+
+          <div class="team-grid">
+            <article class="team-card">
+              <img class="team-photo" src="founder-rahat-mahi.jpg" alt="Rahat Hasan Mahi">
+              <div class="team-info">
+                <h3>Rahat Hasan Mahi</h3>
+                <p class="team-id">Student ID: 2407101</p>
+                <p class="team-badge">Undergraduate Student</p>
+                <ul class="team-meta">
+                  <li>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
+                    B.Sc. Engineering in Computer Science and Engineering
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/><path d="M9 11h.01M15 11h.01M12 11h.01"/></svg>
+                    Khulna University of Engineering &amp; Technology (KUET)
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Khulna, Bangladesh
+                  </li>
+                </ul>
+                <div class="team-links">
+                  <a class="team-mail" href="mailto:mahi2407101@stud.kuet.ac.bd">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+                    mahi2407101@stud.kuet.ac.bd
+                  </a>
+                  <a href="https://github.com/RHMahi" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.26 5.66.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .3.2.67.8.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+                    GitHub
+                  </a>
+                  <a href="https://bd.linkedin.com/in/rahat-hasan-mahi" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <article class="team-card">
+              <img class="team-photo" src="founder-ayesha-yesmin.jpg" alt="Ayesha Yesmin Moumita">
+              <div class="team-info">
+                <h3>Ayesha Yesmin Moumita</h3>
+                <p class="team-id">Student ID: 2407104</p>
+                <p class="team-badge">Undergraduate Student</p>
+                <ul class="team-meta">
+                  <li>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
+                    B.Sc. Engineering in Computer Science and Engineering
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/><path d="M9 11h.01M15 11h.01M12 11h.01"/></svg>
+                    Khulna University of Engineering &amp; Technology (KUET)
+                  </li>
+                  <li>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Khulna, Bangladesh
+                  </li>
+                </ul>
+                <div class="team-links">
+                  <a class="team-mail" href="mailto:moumita2407104@stud.kuet.ac.bd">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+                    moumita2407104@stud.kuet.ac.bd
+                  </a>
+                  <a href="https://github.com/ayeshaawoM" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.26 5.66.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .3.2.67.8.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+                    GitHub
+                  </a>
+                  <a href="https://bd.linkedin.com/in/ayesha-yesmin-moumita-a3a37b397" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+                    LinkedIn
+                  </a>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CAMPUS IMAGE BAND ============ -->
+      <section class="campus-band">
+        <figure class="land-wrap">
+          <img src="kuettop.jpg" alt="KUET campus, Khulna, Bangladesh">
+          <figcaption>KUET Campus &middot; Khulna, Bangladesh</figcaption>
+        </figure>
+      </section>
+
+      <!-- ============ FEATURES ============ -->
+      <section class="features" id="features">
+        <div class="land-wrap">
+          <p class="kicker">HOW IT WORKS</p>
+          <h2>Built around real campus operations</h2>
+          <p class="section-sub">KUET WasteX in four moving parts.</p>
+          <div class="features-grid">
+            <article class="feature">
+              <h4>Bin telemetry</h4>
+              <p>Every campus bin is modeled with a live fill level and fill rate;
+                 thresholds classify each bin from Normal to Critical across the day.</p>
+            </article>
+            <article class="feature">
+              <h4>Priority engine</h4>
+              <p>Bins are ranked by fill level and fill rate, so the most urgent
+                 bins are always collected first.</p>
+            </article>
+            <article class="feature">
+              <h4>Shortest routes</h4>
+              <p>The campus road network finds the shortest path between any two
+                 locations, so trucks never waste time on campus.</p>
+            </article>
+            <article class="feature">
+              <h4>Live operations</h4>
+              <p>A collection truck follows the priority order along real OpenStreetMap
+                 road geometry while drivers log each pickup from their portal.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="land-foot">
+      <div class="land-wrap foot-in">
+        <div class="foot-brand">
+          <img class="kuet-logo foot-logo" src="WasteXlogo.png" alt="KUET Logo"
                onerror="this.onerror=null;this.src='kuet-logo.svg'">
           <div>
             <strong>KUET WasteX</strong>
-            <span>Khulna University of Engineering &amp; Technology</span>
+            <span>Smart Waste Collection System &middot; KUET CSE</span>
           </div>
         </div>
-        <div class="role-tabs" id="roleTabs">
-          <button class="role-tab active" data-role="Admin">Admin</button>
-          <button class="role-tab" data-role="User">User</button>
-          <button class="role-tab" data-role="Driver">Driver</button>
-        </div>
-
-        <form id="loginForm" autocomplete="off" novalidate>
-          <label for="loginUser">Username</label>
-          <input type="text" id="loginUser" placeholder="Enter username" />
-          <label for="loginPass">Password</label>
-          <div class="input-wrap">
-            <input type="password" id="loginPass" placeholder="Enter password" />
-            <button type="button" class="pw-toggle" data-target="loginPass" aria-label="Show password">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-          <div class="form-error hidden" id="loginError"></div>
-          <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-        </form>
-
-        <div class="signup-hint" id="signupHint">
-          New user? <button type="button" id="showSignup" class="link-btn">Create an account</button>
-        </div>
-
-        <form id="signupForm" class="hidden" autocomplete="off" novalidate>
-          <label for="suUser">Username</label>
-          <input type="text" id="suUser" placeholder="Choose a username" />
-          <label for="suPass">Password</label>
-          <div class="input-wrap">
-            <input type="password" id="suPass" placeholder="Choose a password" />
-            <button type="button" class="pw-toggle" data-target="suPass" aria-label="Show password">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-          <label for="suName">Full Name</label>
-          <input type="text" id="suName" placeholder="Your full name" />
-          <div class="form-grid2">
-            <div>
-              <label for="suRoll">Student ID / Roll</label>
-              <input type="text" id="suRoll" placeholder="e.g. 2107001" />
-            </div>
-            <div>
-              <label for="suBatch">Batch</label>
-              <input type="text" id="suBatch" placeholder="e.g. 2K22" />
-            </div>
-            <div>
-              <label for="suDept">Department</label>
-              <select id="suDept">
-                <option value="">Select department</option>
-                <option>CSE</option><option>EEE</option><option>ECE</option>
-                <option>ME</option><option>CE</option><option>BME</option>
-                <option>MTE</option><option>CHE</option><option>IEM</option>
-                <option>LE</option><option>TE</option><option>URP</option>
-                <option>Architecture</option><option>BECM</option><option>Other</option>
-              </select>
-            </div>
-            <div>
-              <label for="suYear">Year</label>
-              <select id="suYear">
-                <option value="">Select year</option>
-                <option value="1">1st Year</option><option value="2">2nd Year</option>
-                <option value="3">3rd Year</option><option value="4">4th Year</option>
-              </select>
-            </div>
-            <div>
-              <label for="suSemester">Semester</label>
-              <select id="suSemester">
-                <option value="">Select semester</option>
-                <option>1-1</option><option>1-2</option><option>2-1</option><option>2-2</option>
-                <option>3-1</option><option>3-2</option><option>4-1</option><option>4-2</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-error hidden" id="signupError"></div>
-          <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
-          <div class="signup-hint">Already have an account? <button type="button" id="hideSignup" class="link-btn">Sign in</button></div>
-        </form>
-
-        <details class="demo-creds">
-          <summary>Demo accounts</summary>
-          <div class="demo-list">
-            <span>Admin &middot; <b>admin / admin123</b></span>
-            <span>Driver &middot; <b>driver1 / drive123</b></span>
-            <span>User &middot; <b>Mahi / 2407101</b></span>
-          </div>
-        </details>
+        <span class="foot-note">Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors</span>
       </div>
-    </div>
+    </footer>
   </section>
 
   <!-- ============ APP VIEW ============ -->
   <section id="appView" class="app-view hidden">
     <aside class="sidebar">
-      <img class="kuet-logo sidebar-logo" src="kuet-logo.png" alt="KUET Logo"
+      <img class="kuet-logo sidebar-logo" src="WasteXlogo.png" alt="KUET Logo"
            onerror="this.onerror=null;this.src='kuet-logo.svg'">
       <div class="brand small">
         <div><h1>KUET WasteX</h1><p id="sideRole">Portal</p></div>
@@ -169,5 +349,6 @@
   <div id="modalRoot"></div>
 
   <script src="app.js"></script>
+  <script src="cursorfx.js" defer></script>
 </body>
 </html>

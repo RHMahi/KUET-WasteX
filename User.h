@@ -4,6 +4,7 @@
 #include<iostream>
 #include<string>
 #include"UI.h"
+#include"sha256.h"
 using namespace std;
 
 class User{
@@ -81,7 +82,7 @@ public:
         int index=findIndex(u);
         if(index==-1)
             return NULL;
-        if(users[index].password!=p)
+        if(!wastexVerifyPassword(p,users[index].password))
             return NULL;
         return &users[index];
     }

@@ -100,13 +100,13 @@ const TITLES = {
   users: ["Manage Users", "Accounts for admins, drivers and citizens"],
   requests: ["Manage Collection Requests", "Create, assign and cancel pickups"],
   history: ["Collection History", "Every recorded collection event"],
-  graph: ["Campus Road Network", "Graph traversal and shortest path tools on a real OpenStreetMap base layer"],
-  searchsort: ["Search & Sort Bins", "Merge sort and binary search on bins"],
+  graph: ["Campus Road Network", "Explore the network and find the shortest routes on a real OpenStreetMap base layer"],
+  searchsort: ["Search & Sort Bins", "Sort bins by any key and find a bin by its ID"],
   stats: ["System Statistics", "Aggregated system analytics"],
   overview: ["System Overview", "All information at a glance"],
   udashboard: ["User Dashboard", "Bins and requests around campus"],
   nearby: ["Find Nearby Bins", "Bins ordered by walking distance"],
-  searchbin: ["Search Bin", "Binary search a bin by ID"],
+  searchbin: ["Search Bin", "Find a bin by its ID"],
   report: ["Report Full Bin", "Flag a bin as full and raise a request"],
   createreq: ["Create Collection Request", "Request a pickup for a bin"],
   myrequests: ["My Requests", "Requests you have raised"],
@@ -115,8 +115,8 @@ const TITLES = {
   ddashboard: ["Driver Dashboard", "Your workload and priorities"],
   assigned: ["Assigned Requests", "Requests assigned to you"],
   priority: ["Priority Bins", "Proposed collection priority"],
-  smart: ["Smart Collection", "Priority queue + Dijkstra route"],
-  shortest: ["Find Shortest Route", "Dijkstra between two locations"],
+  smart: ["Smart Collection", "Most urgent bins first, shortest routes between stops"],
+  shortest: ["Find Shortest Route", "Shortest distance between two locations"],
   collect: ["Collect Bin", "Mark a bin as collected"],
   driverhistory: ["Collection History", "Recent collection records"],
   location: ["Current Location", "Where your truck is now"],
@@ -128,6 +128,39 @@ async function boot() {
     if (s) await enterApp(s);
   } catch (e) { /* ignore */ }
   wireLogin();
+  wireLandingReveals();
+  wireTeamTilt();
+}
+function wireTeamTilt() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(hover: none)").matches) return;
+  document.querySelectorAll("#loginView .team-card").forEach((card) => {
+    if (card.dataset.tilt) return;
+    card.dataset.tilt = "1";
+    card.addEventListener("mousemove", (e) => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+      card.style.setProperty("--tiltX", (-py * 3.4).toFixed(2) + "deg");
+      card.style.setProperty("--tiltY", (px * 5.2).toFixed(2) + "deg");
+      card.style.setProperty("--shX", (px * 100 + 50).toFixed(1) + "%");
+      card.style.setProperty("--shY", (py * 100 + 50).toFixed(1) + "%");
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.setProperty("--tiltX", "0deg");
+      card.style.setProperty("--tiltY", "0deg");
+    });
+  });
+}
+function wireLandingReveals() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+  const els = document.querySelectorAll("#loginView .team-card, #loginView .campus-band figure, #loginView .feature");
+  if (!els.length) return;
+  els.forEach((el) => el.classList.add("wx-pre"));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add("wx-in"); io.unobserve(en.target); }
+    });
+  }, { rootMargin: "0px 0px -90px 0px", threshold: 0.15 });
+  els.forEach((el) => io.observe(el));
 }
 boot();
 
@@ -187,8 +220,10 @@ function wireLogin() {
   });
 
   /* sign in */
+  let wxPending = false;
   $("#loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (wxPending) return;
     setFieldError("loginError", "");
     const role = $(".role-tab.active").dataset.role;
     const username = $("#loginUser").value.trim();
@@ -198,9 +233,10 @@ function wireLogin() {
     if (!password) { $("#loginPass").focus(); return setFieldError("loginError", "Please enter your password."); }
     const btn = $("#loginForm").querySelector('button[type="submit"]');
     btn.disabled = true;
+    wxPending = true;
     try {
       const r = await api("/api/login", "POST", { username, password, role });
-      await enterApp(r.user);
+      await enterApp(r.user, 4000);
       toast("Welcome, " + r.user.name + "!");
     } catch (err) {
       const msg = /invalid username or password/i.test(err.message)
@@ -208,7 +244,7 @@ function wireLogin() {
       setFieldError("loginError", msg);
       $("#loginPass").value = "";
       $("#loginPass").focus();
-    } finally { btn.disabled = false; }
+    } finally { wxPending = false; btn.disabled = false; }
   });
 
   /* sign up */
@@ -244,11 +280,12 @@ function wireLogin() {
   });
 }
 
-async function enterApp(user) {
+async function enterApp(user, wxDelay) {
   SESSION = user;
   sessionStorage.setItem("wx_session", JSON.stringify(user));
   try { LOCS = (await api("/api/state")).locations; } catch (e) { LOCS = []; }
   $("#loginView").classList.add("hidden");
+  if (wxDelay) await wxShowLoader(wxDelay);
   $("#appView").classList.remove("hidden");
   $("#userName").textContent = user.name;
   $("#userRole").textContent = user.role + " · @" + user.username;
@@ -257,6 +294,20 @@ async function enterApp(user) {
   buildNav(user.role);
   startClock();
   go(NAV[user.role][0][0]);
+}
+
+/* branded post-sign-in loading screen (Admin / Driver / User) */
+function wxShowLoader(ms) {
+  let el = document.getElementById("wxLoader");
+  if (!el) {
+    el = document.createElement("div");
+    el.className = "wx-loader";
+    el.id = "wxLoader";
+    el.setAttribute("role", "status");
+    el.innerHTML = '<img src="WasteXlogo.png" alt="WasteX logo"><div class="wl-msg">Preparing your dashboard...</div><div class="wl-bar"><div class="wl-fill"></div></div>';
+    document.body.appendChild(el);
+  }
+  return new Promise((res) => setTimeout(() => { el.remove(); res(); }, ms));
 }
 
 function buildNav(role) {
@@ -299,13 +350,35 @@ $("#logoutBtn").addEventListener("click", () => {
 /* ================================================================== */
 /* Graph rendering                                                    */
 /* ================================================================== */
-const NODE_POS = {
-  "Main Gate": [120, 545], "K.A.H": [95, 425], "Janata Bank": [245, 520],
-  "Pocket Gate": [365, 468], "Post Office": [445, 380], "Central Field": [575, 355],
-  "Academic Area": [560, 490], "Cafeteria": [710, 405], "Administration": [700, 495],
-  "S.S.H": [470, 255], "A.E.H": [625, 175], "F.A.H": [745, 255],
-  "R.H": [825, 455], "Guest House": [885, 345], "IT Park": [815, 205],
-};
+const NODE_POS = (() => {
+  const geo = {
+    "Main Gate": [22.8971, 89.5024],
+    "Janata Bank": [22.8984, 89.5016],
+    "Pocket Gate": [22.899, 89.5011],
+    "Post Office": [22.8994, 89.502],
+    "Central Field": [22.9006, 89.5017],
+    "Academic Area": [22.9001, 89.5024],
+    "Administration": [22.90079, 89.502527],
+    "R.H": [22.900279, 89.503414],
+    "K.A.H": [22.898446, 89.50498],
+    "Cafeteria": [22.898384, 89.503069],
+    "A.E.H": [22.89787, 89.500985],
+    "S.S.H": [22.89855, 89.5007],
+    "F.A.H": [22.89925, 89.50145],
+    "IT Park": [22.90255, 89.50215],
+    "Guest House": [22.90225, 89.50335],
+  };
+  const minLat = 22.8966, maxLat = 22.9032;
+  const minLng = 89.4995, maxLng = 89.5055;
+  const out = {};
+  for (const [name, [lat, lng]] of Object.entries(geo)) {
+    out[name] = [
+      Math.round(70 + ((lng - minLng) / (maxLng - minLng)) * 860),
+      Math.round(50 + ((maxLat - lat) / (maxLat - minLat)) * 550),
+    ];
+  }
+  return out;
+})();
 
 function graphSVG(nodes, edges, marks = {}) {
   const pathSet = new Set(marks.path || []);
@@ -318,7 +391,7 @@ function graphSVG(nodes, edges, marks = {}) {
     const a = NODE_POS[e.a], b = NODE_POS[e.b];
     if (!a || !b) continue;
     const onPath = pe.has(e.a + "|" + e.b);
-    s += `<line class="edge" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" ${onPath ? 'style="stroke:#22c55e;stroke-width:4"' : ""}/>`;
+    s += `<line class="edge" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" ${onPath ? 'style="stroke:#4ADE80;stroke-width:4"' : ""}><title>${esc(e.a)} &rarr; ${esc(e.b)} &middot; ${Number(e.weight).toFixed(2)} km</title></line>`;
     s += `<text class="edge-text" x="${(a[0] + b[0]) / 2}" y="${(a[1] + b[1]) / 2 - 4}" text-anchor="middle">${e.weight}</text>`;
   }
   for (const n of nodes) {
@@ -329,7 +402,7 @@ function graphSVG(nodes, edges, marks = {}) {
     if (target === n) cls += " target";
     if (pathSet.has(n)) cls += " path";
     if (visitMap[n] !== undefined) cls += " visit";
-    s += `<g class="${cls}"><circle cx="${p[0]}" cy="${p[1]}" r="20"/>`;
+    s += `<g class="${cls}" data-node="${esc(n)}"><circle cx="${p[0]}" cy="${p[1]}" r="20"/>`;
     if (visitMap[n] !== undefined) s += `<text x="${p[0]}" y="${p[1] + 4}" style="fill:#fff;font-weight:700;font-size:11.5px;text-anchor:middle">${visitMap[n]}</text>`;
     s += `<text x="${p[0]}" y="${p[1] - 30}">${esc(n)}</text></g>`;
   }
@@ -344,6 +417,31 @@ function pathEdgesFrom(pathArr) {
     set.add(pathArr[i + 1] + "|" + pathArr[i]);
   }
   return set;
+}
+
+/* Hover highlight for the dark schematic: lights up the hovered location
+   and its connected roads, fades the rest. Purely presentational. */
+function wireGraphHover(root) {
+  const svg = root.querySelector(".graph-svg");
+  if (!svg) return;
+  const nodeEls = [...svg.querySelectorAll(".node")];
+  const edgeEls = [...svg.querySelectorAll("line.edge")];
+  const connected = (a, b) => edgeEls.some((ln) =>
+    (ln.dataset.a === a && ln.dataset.b === b) || (ln.dataset.a === b && ln.dataset.b === a));
+  const clear = () => {
+    nodeEls.forEach((n) => n.classList.remove("hot", "fade"));
+    edgeEls.forEach((e) => e.classList.remove("lit", "fade"));
+  };
+  nodeEls.forEach((g) => {
+    const name = g.dataset.node;
+    g.addEventListener("mouseenter", () => {
+      clear();
+      g.classList.add("hot");
+      nodeEls.forEach((o) => { if (o !== g && !connected(name, o.dataset.node)) o.classList.add("fade"); });
+      edgeEls.forEach((ln) => ln.classList.add(ln.dataset.a === name || ln.dataset.b === name ? "lit" : "fade"));
+    });
+    g.addEventListener("mouseleave", clear);
+  });
 }
 
 /* ================================================================== */
@@ -598,7 +696,7 @@ VIEWS.livemap = async () => {
             <div><span>Destination</span><b>${esc(destination)}</b></div>
             <div><span>Stops routed</span><b>${legs.length} of ${planned.length}</b></div>
             <div><span>Path geometry</span><b>OpenStreetMap roads</b></div>
-            <div><span>Stop order</span><b>Campus graph (Dijkstra)</b></div>
+            <div><span>Stop order</span><b>Shortest route across campus</b></div>
           </div>
           ${plan ? "" : `<div class="empty" style="padding:14px">${esc(planNote || "No route yet.")}${isAdmin ? " Use <b>Load Demo</b> to fill some bins." : ""}</div>`}
           ${skipped.length ? `<details style="margin-top:10px"><summary>${skipped.length} location(s) not on the map</summary><div class="mini-list" style="margin-top:8px">${skipped.map((s) => `<div class="mini-row"><span class="nm">${esc(s.binId ? s.binId + " · " : "")}${esc(s.name)}</span><span class="hint">${esc(s.why)}</span></div>`).join("")}</div></details>` : ""}
@@ -864,10 +962,10 @@ VIEWS.dashboard = async () => {
       ${statCard("Collection Records", sy.collectionRecords, "violet", "Logged pickups")}
     </div>
     <div class="grid cols-2">
-      <div class="card"><h3>Proposed Collection Priority <span class="sub">max-heap</span></h3>
+      <div class="card"><h3>Proposed Collection Priority <span class="sub">most urgent first</span></h3>
         ${prioTable(prio.queue)}
       </div>
-      <div class="card"><h3>Recent Collections <span class="sub">linked list</span></h3>
+      <div class="card"><h3>Recent Collections</h3>
         ${histTable(hist.history.slice(0, 6))}
       </div>
     </div>
@@ -970,6 +1068,9 @@ function openBinEdit(id) {
 }
 
 /* ---------------------- ADMIN: Users ---------------------- */
+const FOUNDERS = ["Mahi", "Ayesha"];
+function isFounder(username) { return FOUNDERS.indexOf(username) !== -1; }
+
 VIEWS.users = async () => {
   const { users } = await api("/api/users");
   $("#view").innerHTML = `
@@ -1002,7 +1103,7 @@ VIEWS.users = async () => {
           <td>${u.batch ? esc(u.batch) : '<span class="muted">—</span>'}</td>
           <td>${u.year ? esc(u.year) : '<span class="muted">—</span>'}</td>
           <td>${u.semester ? esc(u.semester) : '<span class="muted">—</span>'}</td>
-          <td class="right"><button class="btn btn-sm btn-danger" data-del>Delete</button></td></tr>`).join("")}
+          <td class="right">${isFounder(u.username) ? '<span class="badge role">Founder - locked</span>' : '<button class="btn btn-sm btn-danger" data-del>Delete</button>'}</td></tr>`).join("")}
       </tbody></table></div>
     </div>`;
   $("#uAdd").addEventListener("click", async () => {
@@ -1016,7 +1117,8 @@ VIEWS.users = async () => {
     } catch (e) { toast(e.message, "error"); }
   });
   $$("tr[data-user]").forEach((tr) => {
-    $("[data-del]", tr).addEventListener("click", async () => {
+    const del = $("[data-del]", tr);
+    if (del) del.addEventListener("click", async () => {
       const un = tr.dataset.user;
       if (!confirm("Delete user " + un + "?")) return;
       try { const r = await api("/api/users/" + encodeURIComponent(un), "DELETE"); toast(r.message); renderView("users"); }
@@ -1144,11 +1246,11 @@ VIEWS.graph = async () => {
         </div>
         <button class="btn btn-primary" id="gAdd" style="margin-top:14px">Add Road</button>
       </div>
-      <div class="card"><h3>Traversal</h3>
+      <div class="card"><h3>Explore the Network</h3>
         <div class="form-row c3">
           <div class="field"><label>Start Location</label><select id="tStart">${options(LOCS, "Main Gate")}</select></div>
-          <button class="btn btn-info" id="bfsBtn">BFS</button>
-          <button class="btn btn-info" id="dfsBtn">DFS</button>
+          <button class="btn btn-info" id="bfsBtn">Explore Level-Wise</button>
+          <button class="btn btn-info" id="dfsBtn">Explore Depth-Wise</button>
         </div>
         <div class="form-row c3" style="margin-top:12px">
           <div class="field"><label>From</label><select id="dFrom">${options(LOCS, "Main Gate")}</select></div>
@@ -1165,7 +1267,7 @@ VIEWS.graph = async () => {
           <button class="btn btn-sm ${mode0 === "schematic" ? "btn-primary" : "btn-ghost"}" id="gModeSchematic">&#11041; Schematic</button>
         </div>
         <span class="spacer"></span>
-        <span class="map-sub">${canMap ? "Campus graph over an OpenStreetMap base layer" : "Leaflet unavailable &mdash; showing the schematic"}</span>
+        <span class="map-sub">${canMap ? "Campus road network over an OpenStreetMap base layer" : "Leaflet unavailable &mdash; showing the schematic"}</span>
       </div>
       ${canMap ? `
       <div class="place-banner hidden" id="gPlaceBanner">
@@ -1182,7 +1284,7 @@ VIEWS.graph = async () => {
         <span><i class="n-dst"></i>Destination</span>
         <span><i class="edge"></i>Road segment (km on hover)</span>
       </div>
-      ${canMap ? `<div class="hint" style="margin-top:8px">Straight lines are the abstract campus graph (the km weights shown in the table below); the faint network underneath is real OpenStreetMap road geometry. &copy; OpenStreetMap contributors, ODbL 1.0</div>` : ""}
+      ${canMap ? `<div class="hint" style="margin-top:8px">Straight lines are the abstract campus graph (the km distances shown in the table below); the faint network underneath is real OpenStreetMap road geometry. &copy; OpenStreetMap contributors, ODbL 1.0</div>` : ""}
       <div id="graphOut" style="margin-top:16px"></div>
     </div>
     ${missing.length ? `
@@ -1224,6 +1326,7 @@ VIEWS.graph = async () => {
   function drawGraph(marks) {
     const mk = marks || {};
     $("#graphBox").innerHTML = graphSVG(g.nodes, g.edges, mk);
+    wireGraphHover($("#graphBox"));
     if (!map) return;
     const pathSet = new Set(mk.path || []);
     const pe = mk.pathEdges || new Set();
@@ -1282,6 +1385,8 @@ VIEWS.graph = async () => {
     });
     $$("[data-place-node]").forEach((btn) => btn.addEventListener("click", () => plc.begin("node", btn.dataset.placeNode)));
     drawGraph({});
+  } else {
+    wireGraphHover($("#graphBox"));
   }
 
   $("#gAdd").addEventListener("click", async () => {
@@ -1305,7 +1410,7 @@ VIEWS.graph = async () => {
       const visits = {}; r.order.forEach((n, i) => (visits[n] = i + 1));
       drawGraph({ start, visits });
       $("#graphOut").innerHTML = `<div class="card" style="box-shadow:none">
-        <h3>${kind.toUpperCase()} Visit Order <span class="sub">from ${esc(start)}</span></h3>
+        <h3>${kind === "bfs" ? "Level-Wise Visit Order" : "Depth-Wise Visit Order"} <span class="sub">from ${esc(start)}</span></h3>
         <div class="chips">${r.order.map((n, i) => `<span class="chip">${i + 1}. ${esc(n)}</span>`).join("")}</div>
       </div>`;
     } catch (e) { toast(e.message, "error"); }
@@ -1317,7 +1422,7 @@ function routeCard(from, to, path, distance) {
   for (let i = 0; i < path.length - 1; i++) legs += `<span>${esc(path[i])}</span><span class="arrow">→</span>`;
   legs += `<span>${esc(path[path.length - 1])}</span>`;
   return `<div class="card" style="box-shadow:none">
-    <h3>Shortest Route <span class="sub">Dijkstra</span></h3>
+    <h3>Shortest Route</h3>
     <div class="step">
       <div class="step-head"><strong>${esc(from)} → ${esc(to)}</strong><span class="chip">${Number(distance).toFixed(2)} km</span></div>
       <div class="route-line">${legs}</div>
@@ -1336,9 +1441,9 @@ VIEWS.searchsort = async () => {
             <option value="priority">Priority</option><option value="id">Bin ID</option></select></div>
           <div class="field"><label>Order</label><select id="sDir"><option value="1">Descending</option><option value="0">Ascending</option></select></div>
         </div>
-        <button class="btn btn-primary" id="sGo" style="margin-top:14px">Sort (Merge Sort)</button>
+        <button class="btn btn-primary" id="sGo" style="margin-top:14px">Sort Bins</button>
       </div>
-      <div class="card"><h3>Binary Search</h3>
+      <div class="card"><h3>Find Bin by ID</h3>
         <div class="form-row c2">
           <div class="field"><label>Bin ID</label><input id="bsId" placeholder="B03" /></div>
           <button class="btn btn-info" id="bsGo">Search</button>
@@ -1379,7 +1484,7 @@ VIEWS.stats = async () => {
     <div class="grid cols-3">
       ${statCard("Total Bins", b.total, "green", "Registered bins")}
       ${statCard("Average Fill", Number(b.average).toFixed(1) + "%", b.average >= 50 ? "amber" : "green", "Across all bins")}
-      ${statCard("Road Segments", sy.roadSegments, "blue", "Graph edges")}
+      ${statCard("Road Segments", sy.roadSegments, "blue", "Campus network links")}
     </div>
     <div class="grid cols-2">
       <div class="card"><h3>Bin Statistics</h3>
@@ -1418,18 +1523,18 @@ VIEWS.overview = async () => {
     </div>
     <div class="card"><h3>Bin Status <span class="sub">${bins.bins.length}</span></h3>${binsTable(bins.bins)}</div>
     <div class="grid cols-2">
-      <div class="card"><h3>Priority Queue</h3>${prioTable(prio.queue)}</div>
+      <div class="card"><h3>Collection Priority</h3>${prioTable(prio.queue)}</div>
       <div class="card"><h3>Registered Users</h3>
         <div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th></tr></thead><tbody>
           ${users.users.map((u) => `<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.name)}</td><td><span class="badge role">${esc(u.role)}</span></td></tr>`).join("")}
         </tbody></table></div>
       </div>
     </div>
-    <div class="card"><h3>Active Requests &amp; Queue</h3>
+    <div class="card"><h3>Active Requests</h3>
       ${requestsTable(requests.requests.filter((r) => r.status === "Pending" || r.status === "Assigned"), users.users.filter((u) => u.role === "Driver"))}
-      <p class="muted" style="margin-top:12px">Pending Request Queue (FIFO): ${requests.requests.length ? "" : ""}${(await queueNames()) || "Empty"}</p>
+      <p class="muted" style="margin-top:12px">Pending Requests (oldest first): ${requests.requests.length ? "" : ""}${(await queueNames()) || "Empty"}</p>
     </div>
-    <div class="card"><h3>Campus Network <span class="sub">BST in-order + adjacency</span></h3>
+    <div class="card"><h3>Campus Network</h3>
       <div class="graph-wrap">${graphSVG(graph.nodes, graph.edges, {})}</div>
     </div>`;
   wireRequestRows(users.users.filter((u) => u.role === "Driver"));
@@ -1477,7 +1582,7 @@ VIEWS.nearby = async () => {
   $("#nGo").addEventListener("click", async () => {
     try {
       const r = await api("/api/graph/nearby?from=" + encodeURIComponent($("#nFrom").value));
-      $("#nOut").innerHTML = `<h3>Nearby Bins from ${esc(r.from)} <span class="sub">Dijkstra distance</span></h3>
+      $("#nOut").innerHTML = `<h3>Nearby Bins from ${esc(r.from)} <span class="sub">by walking distance</span></h3>
         <div class="table-wrap"><table><thead><tr><th>#</th><th>Bin</th><th>Location</th><th>Fill</th><th>Status</th><th class="right">Distance</th></tr></thead><tbody>
         ${r.bins.map((b, i) => `<tr><td class="mono">${i + 1}</td><td><b>${esc(b.id)}</b></td><td>${esc(b.location)}</td><td>${barFor(b.fill)}</td><td>${badge(b.status)}</td><td class="right mono">${b.distance >= 1e9 ? "unreachable" : Number(b.distance).toFixed(2) + " km"}</td></tr>`).join("")}
         </tbody></table></div>`;
@@ -1494,7 +1599,7 @@ VIEWS.searchbin = async () => {
         <button class="btn btn-primary" id="usGo">Search</button>
       </div>
     </div>
-    <div class="card" id="usOut"><div class="empty">Bins are sorted by ID then binary-searched.</div></div>`;
+    <div class="card" id="usOut"><div class="empty">Enter a bin ID to find it.</div></div>`;
   $("#usGo").addEventListener("click", async () => {
     try {
       const r = await api("/api/bins/search?id=" + encodeURIComponent($("#usId").value.trim()));
@@ -1544,7 +1649,7 @@ VIEWS.createreq = async () => {
         <button class="btn btn-primary" id="crGo">Create Request</button>
       </div>
     </div>
-    <div class="card" id="crOut"><div class="empty">A request moves the bin into the pickup queue.</div></div>`;
+    <div class="card" id="crOut"><div class="empty">A request moves the bin into the pickup list.</div></div>`;
   $("#crGo").addEventListener("click", async () => {
     try {
       const r = await api("/api/requests", "POST", { binId: $("#crBin").value, username: SESSION.username });
@@ -1628,14 +1733,14 @@ VIEWS.assigned = async () => {
 /* ---------------------- DRIVER: Priority ---------------------- */
 VIEWS.priority = async () => {
   const r = await api("/api/priority");
-  $("#view").innerHTML = `<div class="card"><h3>Proposed Collection Priority <span class="sub">max heap by priority = fill×0.6 + rate×0.4</span></h3>${prioTable(r.queue)}</div>`;
+  $("#view").innerHTML = `<div class="card"><h3>Proposed Collection Priority <span class="sub">ranked by fill level and fill rate</span></h3>${prioTable(r.queue)}</div>`;
 };
 
 /* ---------------------- DRIVER: Smart collection ---------------------- */
 VIEWS.smart = async () => {
   $("#view").innerHTML = `
     <div class="card"><h3>Smart Collection</h3>
-      <p class="muted" style="margin-bottom:14px">The engine pops the highest-priority bin, routes to it with Dijkstra, collects, then returns to the start.</p>
+      <p class="muted" style="margin-bottom:14px">The truck collects the most urgent bin first, follows the shortest route to it, then returns to the start.</p>
       <div class="form-row c2">
         <div class="field"><label>Truck Starting Location</label><select id="scStart">${options(LOCS, "Main Gate")}</select></div>
         <button class="btn btn-primary" id="scGo">Start Smart Collection</button>

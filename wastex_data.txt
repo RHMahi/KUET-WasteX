@@ -1,22 +1,32 @@
 WASTEX_DATA_V1
 NEXTID|110
 LOCATION|Cafeteria
-BINCOUNT|5
-B01|Cafeteria|0.00|10.00
+BINCOUNT|15
+B01|Cafeteria|85.00|4.00
 B02|Academic Area|0.00|20.00
-B03|S.S.H|0.00|3.00
-B04|Main Gate|0.00|25.00
-B05|Administration|0.00|5.00
+B03|S.S.H|95.00|3.00
+B04|Main Gate|55.00|2.00
+B05|Administration|70.00|5.00
+B06|Central Field|65.00|2.50
+B07|A.E.H|30.00|1.50
+B08|F.A.H|78.00|2.00
+B09|K.A.H|92.00|3.50
+B10|R.H|25.00|1.00
+B11|IT Park|58.00|1.80
+B12|Janata Bank|45.00|2.00
+B13|Pocket Gate|12.00|0.50
+B14|Post Office|88.00|3.00
+B15|Guest House|20.00|0.80
 USERCOUNT|9
-admin|admin123|Admin|System Administrator
-driver1|drive123|Driver|Rahim
-student1|pass123|User|Karim
-Mahi|2407101|User|Mahi Islam
-Ayesha|2407104|User|Ayesha Rahman
-Tuli|tuli123|User|Tuli Ahmed
-driver2|drive456|Driver|Sabbir Ahmed
-mahi|mahi|User|rahat mahi
-ayesha|123|User|ayesha yesmkn
+admin|sha256$de70ce3c351cbe17$be71149c7aeff93d0f30e410cd5a578323a70c98a6797714323ffad4027ee92b|Admin|System Administrator
+driver1|sha256$fbf308a542273314$cb477bd24d86c0eb13f759f250e6ea7f884de7a7014652a6493efa003084bc92|Driver|Rahim
+student1|sha256$6f067da1ae8b1b3a$76440a2b507ca138b9672597486e5f615f2ccb1dfc638d6b3dbff65b7f942cd1|User|Karim
+Mahi|sha256$9ad2d9b342552da8$3f425c3e00b7aaf34d30a145ee78f5f3b665e3df8d0c6f354f2b1213f7b8c6f8|Admin|Rahat Hasan Mahi - Founder
+Ayesha|sha256$5bdc817c9ff65bb3$1b9926a7ddd0b348f951181214e2b003f7cdfbb858db9a201294f11f5802790c|Admin|Ayesha Yesmin Moumita - Founder
+Tuli|sha256$69af7a66de635adb$09686bb914afd44046fb5f5fb0224486ecb591da1fd55ce8ae980472b4f890a5|User|Tuli Ahmed
+driver2|sha256$b9f4a3c1b7177ac7$b23971e5876239342ef67dece9bfdc8c3898a567147a15f9a5b8c7b7e1eb25cd|Driver|Sabbir Ahmed
+mahi|sha256$251f24f0c93c1a65$37d588449bb0dba1f6d8163141da2db140d1575ff92d90ad59b079cbcd5b314d|User|rahat mahi
+ayesha|sha256$1f139c555df1dd11$590169ccade9b10ddb52cd793c0e4b3eaf8ed0fdcdb73f1829bdfd547154fd4e|User|ayesha yesmkn
 REQCOUNT|9
 R101|B03|S.S.H|HIGH|Completed|student1|driver1
 R102|B01|Cafeteria|MEDIUM|Completed|Mahi|
@@ -26,8 +36,12 @@ R105|B01|Cafeteria|HIGH|Completed|mahi|driver1
 R106|B02|Academic Area|LOW|Completed|mahi|
 R107|B04|Main Gate|MEDIUM|Completed|ayesha|
 R108|B04|Main Gate|LOW|Completed|student1|
-R109|B01|Cafeteria|LOW|Pending|student1|
-HISTCOUNT|11
+R109|B01|Cafeteria|LOW|Completed|student1|
+HISTCOUNT|15
+B04|Main Gate|Collected via smart route
+B05|Administration|Collected via smart route
+B01|Cafeteria|Collected via smart route
+B03|S.S.H|Collected via smart route
 B02|Academic Area|Collected via smart route
 B01|Cafeteria|Collected via smart route
 B04|Main Gate|Collected via smart route

@@ -127,7 +127,7 @@ async function route(req, res) {
       const b = await readBody(req);
       const data = D.load();
       const user = data.users.find((x) => x.username === b.username);
-      if (!user || user.password !== b.password) return fail(res, "Invalid username or password.");
+      if (!user || !D.verifyPassword(b.password || "", user.password)) return fail(res, "Invalid username or password.");
       if (b.role && user.role !== b.role) return fail(res, "This account is not a " + b.role + " account.");
       return ok(res, { user: withProfile(user, loadProfiles()) });
     }
@@ -138,7 +138,7 @@ async function route(req, res) {
       if (!b.studentId || !b.department || !b.batch || !b.year || !b.semester)
         return fail(res, "Student ID, department, batch, year and semester are required.");
       if (data.users.some((x) => x.username === b.username)) return fail(res, "Username already exists.");
-      data.users.push({ username: b.username, password: b.password, role: "User", name: b.name });
+      data.users.push({ username: b.username, password: D.hashPassword(b.password), role: "User", name: b.name });
       D.save(data);
       const profiles = loadProfiles();
       profiles[b.username] = {
@@ -226,7 +226,7 @@ async function route(req, res) {
       if (!b.username || !b.password || !b.name) return fail(res, "Username, password and full name are required.");
       if (data.users.some((x) => x.username === b.username)) return fail(res, "Username already exists.");
       const role = ["Admin", "Driver", "User"].includes(b.role) ? b.role : "User";
-      data.users.push({ username: b.username, password: b.password, role, name: b.name });
+      data.users.push({ username: b.username, password: D.hashPassword(b.password), role, name: b.name });
       D.save(data);
       if (role === "User") {
         const profiles = loadProfiles();
@@ -240,6 +240,8 @@ async function route(req, res) {
     }
     if (p.startsWith("/api/users/") && method === "DELETE") {
       const username = decodeURIComponent(p.slice("/api/users/".length));
+      if (["Mahi", "Ayesha"].indexOf(username) !== -1)
+        return fail(res, "Founder accounts cannot be deleted from the admin list.", 403);
       const data = D.load();
       const idx = data.users.findIndex((x) => x.username === username);
       if (idx === -1) return fail(res, "User not found.");

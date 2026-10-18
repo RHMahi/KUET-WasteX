@@ -2,8 +2,31 @@
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const DATA_FILE = path.join(__dirname, "..", "wastex_data.txt");
+
+/* ------------------------------------------------------------------ */
+/* Password hashing (salted SHA-256, mirrors sha256.h)                */
+/* ------------------------------------------------------------------ */
+function isHashed(pw) {
+  return typeof pw === "string" && pw.length > 80 && pw.startsWith("sha256$") && pw.charAt(23) === "$";
+}
+function hashPassword(pw, salt) {
+  const s = salt || crypto.randomBytes(8).toString("hex");
+  return "sha256$" + s + "$" + crypto.createHash("sha256").update(s + "|" + String(pw)).digest("hex");
+}
+function verifyPassword(input, stored) {
+  if (!isHashed(stored)) return input === stored;
+  if (stored.length !== 7 + 16 + 1 + 64) return false;
+  const salt = stored.slice(7, 23);
+  return stored.slice(24) === crypto.createHash("sha256").update(salt + "|" + String(input)).digest("hex");
+}
+function upgradeUsers(data) {
+  for (const u of data.users || []) {
+    if (!isHashed(u.password)) u.password = hashPassword(u.password);
+  }
+}
 
 const NODE_ORDER = [
   "Main Gate", "Janata Bank", "Pocket Gate", "Post Office", "Central Field",
@@ -58,11 +81,23 @@ function defaultData() {
       { id: "B03", location: "S.S.H", fill: 95, rate: 3 },
       { id: "B04", location: "Main Gate", fill: 40, rate: 2 },
       { id: "B05", location: "Administration", fill: 70, rate: 5 },
+      { id: "B06", location: "Central Field", fill: 65, rate: 2.5 },
+      { id: "B07", location: "A.E.H", fill: 30, rate: 1.5 },
+      { id: "B08", location: "F.A.H", fill: 78, rate: 2 },
+      { id: "B09", location: "K.A.H", fill: 92, rate: 3.5 },
+      { id: "B10", location: "R.H", fill: 25, rate: 1 },
+      { id: "B11", location: "IT Park", fill: 58, rate: 1.8 },
+      { id: "B12", location: "Janata Bank", fill: 45, rate: 2 },
+      { id: "B13", location: "Pocket Gate", fill: 12, rate: 0.5 },
+      { id: "B14", location: "Post Office", fill: 88, rate: 3 },
+      { id: "B15", location: "Guest House", fill: 20, rate: 0.8 },
     ],
     users: [
-      { username: "admin", password: "admin123", role: "Admin", name: "System Administrator" },
-      { username: "driver1", password: "drive123", role: "Driver", name: "Rahim" },
-      { username: "student1", password: "pass123", role: "User", name: "Karim" },
+      { username: "admin", password: hashPassword("admin123"), role: "Admin", name: "System Administrator" },
+      { username: "Mahi", password: hashPassword("12411030"), role: "Admin", name: "Rahat Hasan Mahi - Founder" },
+      { username: "Ayesha", password: hashPassword("101104mm"), role: "Admin", name: "Ayesha Yesmin Moumita - Founder" },
+      { username: "driver1", password: hashPassword("drive123"), role: "Driver", name: "Rahim" },
+      { username: "student1", password: hashPassword("pass123"), role: "User", name: "Karim" },
     ],
     requests: [
       { requestId: "R101", binId: "B03", location: "S.S.H", priority: "HIGH", status: "Pending", requestedBy: "student1", assignedDriver: "" },
@@ -181,7 +216,10 @@ function load() {
   try {
     const text = fs.readFileSync(DATA_FILE, "utf8");
     const parsed = parseFile(text);
-    if (parsed) return parsed;
+    if (parsed) {
+      upgradeUsers(parsed);
+      return parsed;
+    }
   } catch (e) { /* fall through */ }
   const d = defaultData();
   save(d);
@@ -607,6 +645,7 @@ module.exports = {
   NODE_ORDER,
   f0, f1, f2,
   load, save, defaultData,
+  isHashed, hashPassword, verifyPassword, upgradeUsers,
   decorateBin, updateStatus, calcPriority, priorityFromStatus,
   buildGraph, graphEdges, bfs, dfs, dijkstra, priorityList,
   sortBins, binarySearchById,
